@@ -4,6 +4,8 @@
         <item>None</item>
         <item>Page Up</item>
         <item>Page Down</item>
+        <item>Up</item>
+        <item>Down</item>
         <item>Left</item>
         <item>Right</item>
     </string-array>

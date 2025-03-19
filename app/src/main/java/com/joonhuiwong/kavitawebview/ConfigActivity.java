@@ -24,18 +24,30 @@ public class ConfigActivity extends ComponentActivity {
     public static final String EXTRA_VOLUME_DOWN = "volume_down";
     public static final String EXTRA_SWIPE_LEFT = "swipe_left";
     public static final String EXTRA_SWIPE_RIGHT = "swipe_right";
+    public static final String EXTRA_SWIPE_UP = "swipe_up"; // New
+    public static final String EXTRA_SWIPE_DOWN = "swipe_down"; // New
+    public static final String EXTRA_DOUBLE_TAP_TOP = "double_tap_top";
+    public static final String EXTRA_DOUBLE_TAP_BOTTOM = "double_tap_bottom";
+    public static final String EXTRA_DOUBLE_TAP_LEFT = "double_tap_left"; // New
+    public static final String EXTRA_DOUBLE_TAP_RIGHT = "double_tap_right"; // New
     public static final String EXTRA_GESTURE_DISTANCE = "gesture_distance";
     public static final String EXTRA_GESTURE_VELOCITY = "gesture_velocity";
     public static final String EXTRA_URL = "url";
     public static final String EXTRA_FULLSCREEN = "fullscreen";
     private static final float DEFAULT_GESTURE_DISTANCE = 100f;
     private static final float DEFAULT_GESTURE_VELOCITY = 100f;
-    private static final boolean DEFAULT_FULLSCREEN = true; // Changed to true
+    private static final boolean DEFAULT_FULLSCREEN = true;
 
     private Spinner spinnerVolumeUp;
     private Spinner spinnerVolumeDown;
     private Spinner spinnerSwipeLeft;
     private Spinner spinnerSwipeRight;
+    private Spinner spinnerSwipeUp; // New
+    private Spinner spinnerSwipeDown; // New
+    private Spinner spinnerDoubleTapTop;
+    private Spinner spinnerDoubleTapBottom;
+    private Spinner spinnerDoubleTapLeft; // New
+    private Spinner spinnerDoubleTapRight; // New
     private EditText editTextUrl;
     private Slider sliderGestureDistance;
     private Slider sliderGestureVelocity;
@@ -47,10 +59,17 @@ public class ConfigActivity extends ComponentActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_config);
 
+        // Initialize spinners
         spinnerVolumeUp = findViewById(R.id.spinner_volume_up);
         spinnerVolumeDown = findViewById(R.id.spinner_volume_down);
         spinnerSwipeLeft = findViewById(R.id.spinner_swipe_left);
         spinnerSwipeRight = findViewById(R.id.spinner_swipe_right);
+        spinnerSwipeUp = findViewById(R.id.spinner_swipe_up); // New
+        spinnerSwipeDown = findViewById(R.id.spinner_swipe_down); // New
+        spinnerDoubleTapTop = findViewById(R.id.spinner_double_tap_top);
+        spinnerDoubleTapBottom = findViewById(R.id.spinner_double_tap_bottom);
+        spinnerDoubleTapLeft = findViewById(R.id.spinner_double_tap_left); // New
+        spinnerDoubleTapRight = findViewById(R.id.spinner_double_tap_right); // New
         editTextUrl = findViewById(R.id.edittext_url);
         sliderGestureDistance = findViewById(R.id.slider_gesture_distance);
         sliderGestureVelocity = findViewById(R.id.slider_gesture_velocity);
@@ -64,6 +83,12 @@ public class ConfigActivity extends ComponentActivity {
         String volumeDown = intent.getStringExtra(EXTRA_VOLUME_DOWN);
         String swipeLeft = intent.getStringExtra(EXTRA_SWIPE_LEFT);
         String swipeRight = intent.getStringExtra(EXTRA_SWIPE_RIGHT);
+        String swipeUp = intent.getStringExtra(EXTRA_SWIPE_UP); // New
+        String swipeDown = intent.getStringExtra(EXTRA_SWIPE_DOWN); // New
+        String doubleTapTop = intent.getStringExtra(EXTRA_DOUBLE_TAP_TOP);
+        String doubleTapBottom = intent.getStringExtra(EXTRA_DOUBLE_TAP_BOTTOM);
+        String doubleTapLeft = intent.getStringExtra(EXTRA_DOUBLE_TAP_LEFT); // New
+        String doubleTapRight = intent.getStringExtra(EXTRA_DOUBLE_TAP_RIGHT); // New
         float gestureDistance = intent.getFloatExtra(EXTRA_GESTURE_DISTANCE, DEFAULT_GESTURE_DISTANCE);
         float gestureVelocity = intent.getFloatExtra(EXTRA_GESTURE_VELOCITY, DEFAULT_GESTURE_VELOCITY);
         String url = intent.getStringExtra(EXTRA_URL);
@@ -76,7 +101,14 @@ public class ConfigActivity extends ComponentActivity {
         spinnerVolumeDown.setAdapter(adapter);
         spinnerSwipeLeft.setAdapter(adapter);
         spinnerSwipeRight.setAdapter(adapter);
+        spinnerSwipeUp.setAdapter(adapter); // New
+        spinnerSwipeDown.setAdapter(adapter); // New
+        spinnerDoubleTapTop.setAdapter(adapter);
+        spinnerDoubleTapBottom.setAdapter(adapter);
+        spinnerDoubleTapLeft.setAdapter(adapter); // New
+        spinnerDoubleTapRight.setAdapter(adapter); // New
 
+        // Set initial spinner values
         if (volumeUp != null) {
             spinnerVolumeUp.setSelection(adapter.getPosition(volumeUp));
         } else {
@@ -96,6 +128,36 @@ public class ConfigActivity extends ComponentActivity {
             spinnerSwipeRight.setSelection(adapter.getPosition(swipeRight));
         } else {
             spinnerSwipeRight.setSelection(adapter.getPosition("Left"));
+        }
+        if (swipeUp != null) { // New
+            spinnerSwipeUp.setSelection(adapter.getPosition(swipeUp));
+        } else {
+            spinnerSwipeUp.setSelection(adapter.getPosition("None"));
+        }
+        if (swipeDown != null) { // New
+            spinnerSwipeDown.setSelection(adapter.getPosition(swipeDown));
+        } else {
+            spinnerSwipeDown.setSelection(adapter.getPosition("None"));
+        }
+        if (doubleTapTop != null) {
+            spinnerDoubleTapTop.setSelection(adapter.getPosition(doubleTapTop));
+        } else {
+            spinnerDoubleTapTop.setSelection(adapter.getPosition("None"));
+        }
+        if (doubleTapBottom != null) {
+            spinnerDoubleTapBottom.setSelection(adapter.getPosition(doubleTapBottom));
+        } else {
+            spinnerDoubleTapBottom.setSelection(adapter.getPosition("None"));
+        }
+        if (doubleTapLeft != null) { // New
+            spinnerDoubleTapLeft.setSelection(adapter.getPosition(doubleTapLeft));
+        } else {
+            spinnerDoubleTapLeft.setSelection(adapter.getPosition("None"));
+        }
+        if (doubleTapRight != null) { // New
+            spinnerDoubleTapRight.setSelection(adapter.getPosition(doubleTapRight));
+        } else {
+            spinnerDoubleTapRight.setSelection(adapter.getPosition("None"));
         }
         sliderGestureDistance.setValue(gestureDistance);
         sliderGestureVelocity.setValue(gestureVelocity);
@@ -138,13 +200,20 @@ public class ConfigActivity extends ComponentActivity {
                     spinnerVolumeDown.setSelection(adapter.getPosition("Page Down"));
                     spinnerSwipeLeft.setSelection(adapter.getPosition("Right"));
                     spinnerSwipeRight.setSelection(adapter.getPosition("Left"));
+                    spinnerSwipeUp.setSelection(adapter.getPosition("None")); // New
+                    spinnerSwipeDown.setSelection(adapter.getPosition("None")); // New
+                    spinnerDoubleTapTop.setSelection(adapter.getPosition("None"));
+                    spinnerDoubleTapBottom.setSelection(adapter.getPosition("None"));
+                    spinnerDoubleTapLeft.setSelection(adapter.getPosition("None")); // New
+                    spinnerDoubleTapRight.setSelection(adapter.getPosition("None")); // New
                     sliderGestureDistance.setValue(DEFAULT_GESTURE_DISTANCE);
                     sliderGestureVelocity.setValue(DEFAULT_GESTURE_VELOCITY);
-                    switchFullscreen.setChecked(DEFAULT_FULLSCREEN); // Uses true
+                    switchFullscreen.setChecked(DEFAULT_FULLSCREEN);
                     Log.d(TAG, "Confirmed reset to defaults: Volume Up=Page Up, Volume Down=Page Down, " +
-                            "Swipe Left=Right, Swipe Right=Left, Distance=" + DEFAULT_GESTURE_DISTANCE +
-                            ", Velocity=" + DEFAULT_GESTURE_VELOCITY + ", Fullscreen=" + DEFAULT_FULLSCREEN +
-                            ", URL unchanged=" + editTextUrl.getText().toString());
+                            "Swipe Left=Right, Swipe Right=Left, Swipe Up=None, Swipe Down=None, " +
+                            "Double Tap Top=None, Double Tap Bottom=None, Double Tap Left=None, Double Tap Right=None, " +
+                            "Distance=" + DEFAULT_GESTURE_DISTANCE + ", Velocity=" + DEFAULT_GESTURE_VELOCITY +
+                            ", Fullscreen=" + DEFAULT_FULLSCREEN + ", URL unchanged=" + editTextUrl.getText().toString());
                 })
                 .setNegativeButton("No", (dialog, which) -> Log.d(TAG, "Reset to defaults cancelled"))
                 .setCancelable(true)
@@ -159,6 +228,12 @@ public class ConfigActivity extends ComponentActivity {
             String selectedVolumeDown = spinnerVolumeDown.getSelectedItem().toString();
             String selectedSwipeLeft = spinnerSwipeLeft.getSelectedItem().toString();
             String selectedSwipeRight = spinnerSwipeRight.getSelectedItem().toString();
+            String selectedSwipeUp = spinnerSwipeUp.getSelectedItem().toString(); // New
+            String selectedSwipeDown = spinnerSwipeDown.getSelectedItem().toString(); // New
+            String selectedDoubleTapTop = spinnerDoubleTapTop.getSelectedItem().toString();
+            String selectedDoubleTapBottom = spinnerDoubleTapBottom.getSelectedItem().toString();
+            String selectedDoubleTapLeft = spinnerDoubleTapLeft.getSelectedItem().toString(); // New
+            String selectedDoubleTapRight = spinnerDoubleTapRight.getSelectedItem().toString(); // New
             float selectedGestureDistance = sliderGestureDistance.getValue();
             float selectedGestureVelocity = sliderGestureVelocity.getValue();
             String selectedUrl = editTextUrl.getText().toString().trim();
@@ -172,6 +247,9 @@ public class ConfigActivity extends ComponentActivity {
 
             Log.d(TAG, "Saving bindings: Volume Up=" + selectedVolumeUp + ", Volume Down=" + selectedVolumeDown +
                     ", Swipe Left=" + selectedSwipeLeft + ", Swipe Right=" + selectedSwipeRight +
+                    ", Swipe Up=" + selectedSwipeUp + ", Swipe Down=" + selectedSwipeDown +
+                    ", Double Tap Top=" + selectedDoubleTapTop + ", Double Tap Bottom=" + selectedDoubleTapBottom +
+                    ", Double Tap Left=" + selectedDoubleTapLeft + ", Double Tap Right=" + selectedDoubleTapRight +
                     ", Distance=" + selectedGestureDistance + ", Velocity=" + selectedGestureVelocity +
                     ", Fullscreen=" + selectedFullscreen + ", URL=" + selectedUrl);
 
@@ -180,6 +258,12 @@ public class ConfigActivity extends ComponentActivity {
             result.putExtra(EXTRA_VOLUME_DOWN, selectedVolumeDown);
             result.putExtra(EXTRA_SWIPE_LEFT, selectedSwipeLeft);
             result.putExtra(EXTRA_SWIPE_RIGHT, selectedSwipeRight);
+            result.putExtra(EXTRA_SWIPE_UP, selectedSwipeUp); // New
+            result.putExtra(EXTRA_SWIPE_DOWN, selectedSwipeDown); // New
+            result.putExtra(EXTRA_DOUBLE_TAP_TOP, selectedDoubleTapTop);
+            result.putExtra(EXTRA_DOUBLE_TAP_BOTTOM, selectedDoubleTapBottom);
+            result.putExtra(EXTRA_DOUBLE_TAP_LEFT, selectedDoubleTapLeft); // New
+            result.putExtra(EXTRA_DOUBLE_TAP_RIGHT, selectedDoubleTapRight); // New
             result.putExtra(EXTRA_GESTURE_DISTANCE, selectedGestureDistance);
             result.putExtra(EXTRA_GESTURE_VELOCITY, selectedGestureVelocity);
             result.putExtra(EXTRA_URL, selectedUrl);

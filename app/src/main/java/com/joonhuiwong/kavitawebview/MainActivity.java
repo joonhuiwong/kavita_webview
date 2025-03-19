@@ -42,6 +42,12 @@ public class MainActivity extends ComponentActivity {
     private static final String KEY_VOLUME_DOWN = "volumeDownBinding";
     private static final String KEY_SWIPE_LEFT = "swipeLeftBinding";
     private static final String KEY_SWIPE_RIGHT = "swipeRightBinding";
+    private static final String KEY_SWIPE_UP = "swipeUpBinding"; // New
+    private static final String KEY_SWIPE_DOWN = "swipeDownBinding"; // New
+    private static final String KEY_DOUBLE_TAP_TOP = "doubleTapTopBinding";
+    private static final String KEY_DOUBLE_TAP_BOTTOM = "doubleTapBottomBinding";
+    private static final String KEY_DOUBLE_TAP_LEFT = "doubleTapLeftBinding"; // New
+    private static final String KEY_DOUBLE_TAP_RIGHT = "doubleTapRightBinding"; // New
     private static final String KEY_GESTURE_DISTANCE = "gestureDistanceThreshold";
     private static final String KEY_GESTURE_VELOCITY = "gestureVelocityThreshold";
     private static final String KEY_FULLSCREEN = "fullscreenEnabled";
@@ -49,6 +55,12 @@ public class MainActivity extends ComponentActivity {
     private String volumeDownBinding;
     private String swipeLeftBinding;
     private String swipeRightBinding;
+    private String swipeUpBinding; // New
+    private String swipeDownBinding; // New
+    private String doubleTapTopBinding;
+    private String doubleTapBottomBinding;
+    private String doubleTapLeftBinding; // New
+    private String doubleTapRightBinding; // New
     private float gestureDistanceThreshold;
     private float gestureVelocityThreshold;
     private String currentUrl;
@@ -65,6 +77,12 @@ public class MainActivity extends ComponentActivity {
                     String newVolumeDown = result.getData().getStringExtra(ConfigActivity.EXTRA_VOLUME_DOWN);
                     String newSwipeLeft = result.getData().getStringExtra(ConfigActivity.EXTRA_SWIPE_LEFT);
                     String newSwipeRight = result.getData().getStringExtra(ConfigActivity.EXTRA_SWIPE_RIGHT);
+                    String newSwipeUp = result.getData().getStringExtra(ConfigActivity.EXTRA_SWIPE_UP); // New
+                    String newSwipeDown = result.getData().getStringExtra(ConfigActivity.EXTRA_SWIPE_DOWN); // New
+                    String newDoubleTapTop = result.getData().getStringExtra(ConfigActivity.EXTRA_DOUBLE_TAP_TOP);
+                    String newDoubleTapBottom = result.getData().getStringExtra(ConfigActivity.EXTRA_DOUBLE_TAP_BOTTOM);
+                    String newDoubleTapLeft = result.getData().getStringExtra(ConfigActivity.EXTRA_DOUBLE_TAP_LEFT); // New
+                    String newDoubleTapRight = result.getData().getStringExtra(ConfigActivity.EXTRA_DOUBLE_TAP_RIGHT); // New
                     float newGestureDistance = result.getData().getFloatExtra(ConfigActivity.EXTRA_GESTURE_DISTANCE, 100f);
                     float newGestureVelocity = result.getData().getFloatExtra(ConfigActivity.EXTRA_GESTURE_VELOCITY, 100f);
                     String newUrl = result.getData().getStringExtra(ConfigActivity.EXTRA_URL);
@@ -74,6 +92,12 @@ public class MainActivity extends ComponentActivity {
                     volumeDownBinding = newVolumeDown;
                     swipeLeftBinding = newSwipeLeft;
                     swipeRightBinding = newSwipeRight;
+                    swipeUpBinding = newSwipeUp; // New
+                    swipeDownBinding = newSwipeDown; // New
+                    doubleTapTopBinding = newDoubleTapTop;
+                    doubleTapBottomBinding = newDoubleTapBottom;
+                    doubleTapLeftBinding = newDoubleTapLeft; // New
+                    doubleTapRightBinding = newDoubleTapRight; // New
                     gestureDistanceThreshold = newGestureDistance;
                     gestureVelocityThreshold = newGestureVelocity;
                     fullscreenEnabled = newFullscreen;
@@ -83,6 +107,12 @@ public class MainActivity extends ComponentActivity {
                     editor.putString(KEY_VOLUME_DOWN, volumeDownBinding);
                     editor.putString(KEY_SWIPE_LEFT, swipeLeftBinding);
                     editor.putString(KEY_SWIPE_RIGHT, swipeRightBinding);
+                    editor.putString(KEY_SWIPE_UP, swipeUpBinding); // New
+                    editor.putString(KEY_SWIPE_DOWN, swipeDownBinding); // New
+                    editor.putString(KEY_DOUBLE_TAP_TOP, doubleTapTopBinding);
+                    editor.putString(KEY_DOUBLE_TAP_BOTTOM, doubleTapBottomBinding);
+                    editor.putString(KEY_DOUBLE_TAP_LEFT, doubleTapLeftBinding); // New
+                    editor.putString(KEY_DOUBLE_TAP_RIGHT, doubleTapRightBinding); // New
                     editor.putFloat(KEY_GESTURE_DISTANCE, gestureDistanceThreshold);
                     editor.putFloat(KEY_GESTURE_VELOCITY, gestureVelocityThreshold);
                     editor.putBoolean(KEY_FULLSCREEN, fullscreenEnabled);
@@ -94,7 +124,10 @@ public class MainActivity extends ComponentActivity {
 
                     Log.d(TAG, "Updated and persisted bindings: Volume Up=" + volumeUpBinding +
                             ", Volume Down=" + volumeDownBinding + ", Swipe Left=" + swipeLeftBinding +
-                            ", Swipe Right=" + swipeRightBinding + ", Distance=" + gestureDistanceThreshold +
+                            ", Swipe Right=" + swipeRightBinding + ", Swipe Up=" + swipeUpBinding +
+                            ", Swipe Down=" + swipeDownBinding + ", Double Tap Top=" + doubleTapTopBinding +
+                            ", Double Tap Bottom=" + doubleTapBottomBinding + ", Double Tap Left=" + doubleTapLeftBinding +
+                            ", Double Tap Right=" + doubleTapRightBinding + ", Distance=" + gestureDistanceThreshold +
                             ", Velocity=" + gestureVelocityThreshold + ", Fullscreen=" + fullscreenEnabled +
                             ", URL=" + currentUrl);
 
@@ -123,6 +156,12 @@ public class MainActivity extends ComponentActivity {
         volumeDownBinding = prefs.getString(KEY_VOLUME_DOWN, "Page Down");
         swipeLeftBinding = prefs.getString(KEY_SWIPE_LEFT, "Right");
         swipeRightBinding = prefs.getString(KEY_SWIPE_RIGHT, "Left");
+        swipeUpBinding = prefs.getString(KEY_SWIPE_UP, "None"); // New, default None
+        swipeDownBinding = prefs.getString(KEY_SWIPE_DOWN, "None"); // New, default None
+        doubleTapTopBinding = prefs.getString(KEY_DOUBLE_TAP_TOP, "None");
+        doubleTapBottomBinding = prefs.getString(KEY_DOUBLE_TAP_BOTTOM, "None");
+        doubleTapLeftBinding = prefs.getString(KEY_DOUBLE_TAP_LEFT, "None"); // New, default None
+        doubleTapRightBinding = prefs.getString(KEY_DOUBLE_TAP_RIGHT, "None"); // New, default None
         gestureDistanceThreshold = prefs.getFloat(KEY_GESTURE_DISTANCE, 100f);
         gestureVelocityThreshold = prefs.getFloat(KEY_GESTURE_VELOCITY, 100f);
         fullscreenEnabled = prefs.getBoolean(KEY_FULLSCREEN, true);
@@ -137,9 +176,11 @@ public class MainActivity extends ComponentActivity {
             public boolean onFling(MotionEvent e1, @NonNull MotionEvent e2, float velocityX, float velocityY) {
                 float diffX = e2.getX() - e1.getX();
                 float diffY = e2.getY() - e1.getY();
-                if (Math.abs(diffX) > Math.abs(diffY) &&
-                        Math.abs(diffX) > gestureDistanceThreshold &&
-                        Math.abs(velocityX) > gestureVelocityThreshold) {
+                float absDiffX = Math.abs(diffX);
+                float absDiffY = Math.abs(diffY);
+
+                // Horizontal swipe detection
+                if (absDiffX > absDiffY && absDiffX > gestureDistanceThreshold && Math.abs(velocityX) > gestureVelocityThreshold) {
                     if (diffX > 0) {
                         int keyCode = getKeyCodeFromBinding(swipeRightBinding);
                         if (keyCode != KeyEvent.KEYCODE_UNKNOWN) {
@@ -157,6 +198,25 @@ public class MainActivity extends ComponentActivity {
                     }
                     return true;
                 }
+                // Vertical swipe detection
+                else if (absDiffY > absDiffX && absDiffY > gestureDistanceThreshold && Math.abs(velocityY) > gestureVelocityThreshold) {
+                    if (diffY > 0) {
+                        int keyCode = getKeyCodeFromBinding(swipeDownBinding);
+                        if (keyCode != KeyEvent.KEYCODE_UNKNOWN) {
+                            webView.dispatchKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, keyCode));
+                            webView.dispatchKeyEvent(new KeyEvent(KeyEvent.ACTION_UP, keyCode));
+                            Log.d(TAG, "Swipe down detected: Simulated " + swipeDownBinding);
+                        }
+                    } else {
+                        int keyCode = getKeyCodeFromBinding(swipeUpBinding);
+                        if (keyCode != KeyEvent.KEYCODE_UNKNOWN) {
+                            webView.dispatchKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, keyCode));
+                            webView.dispatchKeyEvent(new KeyEvent(KeyEvent.ACTION_UP, keyCode));
+                            Log.d(TAG, "Swipe up detected: Simulated " + swipeUpBinding);
+                        }
+                    }
+                    return true;
+                }
                 return false;
             }
 
@@ -165,6 +225,65 @@ public class MainActivity extends ComponentActivity {
                 webView.performClick();
                 Log.d(TAG, "Single tap detected, calling performClick for accessibility");
                 return false;
+            }
+
+            @Override
+            public boolean onDoubleTap(@NonNull MotionEvent e) {
+                float x = e.getX();
+                float y = e.getY();
+                int viewWidth = webView.getWidth();
+                int viewHeight = webView.getHeight();
+
+                // Define regions: top/bottom 1/3, left/right 1/3
+                boolean isTopY = y <= viewHeight * 0.33f;
+                boolean isBottomY = y >= viewHeight * 0.66f;
+                boolean isLeftX = x <= viewWidth * 0.33f;
+                boolean isRightX = x >= viewWidth * 0.66f;
+                boolean isMiddleX = x >= viewWidth * 0.33f && x <= viewWidth * 0.66f;
+
+                if (isMiddleX && isTopY) {
+                    int keyCode = getKeyCodeFromBinding(doubleTapTopBinding);
+                    if (keyCode != KeyEvent.KEYCODE_UNKNOWN) {
+                        webView.dispatchKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, keyCode));
+                        webView.dispatchKeyEvent(new KeyEvent(KeyEvent.ACTION_UP, keyCode));
+                        Log.d(TAG, "Double tap at top-middle (12 o'clock): Simulated " + doubleTapTopBinding);
+                    } else {
+                        Log.d(TAG, "Double tap at top-middle: No action (bound to None)");
+                    }
+                    return true;
+                } else if (isMiddleX && isBottomY) {
+                    int keyCode = getKeyCodeFromBinding(doubleTapBottomBinding);
+                    if (keyCode != KeyEvent.KEYCODE_UNKNOWN) {
+                        webView.dispatchKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, keyCode));
+                        webView.dispatchKeyEvent(new KeyEvent(KeyEvent.ACTION_UP, keyCode));
+                        Log.d(TAG, "Double tap at bottom-middle (6 o'clock): Simulated " + doubleTapBottomBinding);
+                    } else {
+                        Log.d(TAG, "Double tap at bottom-middle: No action (bound to None)");
+                    }
+                    return true;
+                } else if (isLeftX && !isTopY && !isBottomY) {
+                    int keyCode = getKeyCodeFromBinding(doubleTapLeftBinding);
+                    if (keyCode != KeyEvent.KEYCODE_UNKNOWN) {
+                        webView.dispatchKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, keyCode));
+                        webView.dispatchKeyEvent(new KeyEvent(KeyEvent.ACTION_UP, keyCode));
+                        Log.d(TAG, "Double tap at left-middle (9 o'clock): Simulated " + doubleTapLeftBinding);
+                    } else {
+                        Log.d(TAG, "Double tap at left-middle: No action (bound to None)");
+                    }
+                    return true;
+                } else if (isRightX && !isTopY && !isBottomY) {
+                    int keyCode = getKeyCodeFromBinding(doubleTapRightBinding);
+                    if (keyCode != KeyEvent.KEYCODE_UNKNOWN) {
+                        webView.dispatchKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, keyCode));
+                        webView.dispatchKeyEvent(new KeyEvent(KeyEvent.ACTION_UP, keyCode));
+                        Log.d(TAG, "Double tap at right-middle (3 o'clock): Simulated " + doubleTapRightBinding);
+                    } else {
+                        Log.d(TAG, "Double tap at right-middle: No action (bound to None)");
+                    }
+                    return true;
+                }
+                Log.d(TAG, "Double tap detected outside target regions (x=" + x + ", y=" + y + ")");
+                return false; // Pass to WebView if not in target regions
             }
         });
 
@@ -219,7 +338,6 @@ public class MainActivity extends ComponentActivity {
             @Override
             public void onReceivedSslError(WebView view, SslErrorHandler handler, android.net.http.SslError error) {
                 Log.e(TAG, "SSL Error: " + error.toString());
-                // Show a dialog to let the user decide
                 new AlertDialog.Builder(MainActivity.this)
                         .setTitle("SSL Security Warning")
                         .setMessage("The website's security certificate is not trusted.\n\n" +
@@ -239,7 +357,6 @@ public class MainActivity extends ComponentActivity {
                         .show();
             }
 
-            // Helper method to translate SSL error codes to user-friendly messages
             private String getSslErrorMessage(android.net.http.SslError error) {
                 switch (error.getPrimaryError()) {
                     case android.net.http.SslError.SSL_UNTRUSTED:
@@ -272,7 +389,6 @@ public class MainActivity extends ComponentActivity {
             Log.d(TAG, "Loading persisted URL: " + currentUrl);
         }
 
-        // Handle back navigation based on API level
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             getOnBackInvokedDispatcher().registerOnBackInvokedCallback(
                     0,
@@ -349,6 +465,12 @@ public class MainActivity extends ComponentActivity {
                     intent.putExtra(ConfigActivity.EXTRA_VOLUME_DOWN, volumeDownBinding);
                     intent.putExtra(ConfigActivity.EXTRA_SWIPE_LEFT, swipeLeftBinding);
                     intent.putExtra(ConfigActivity.EXTRA_SWIPE_RIGHT, swipeRightBinding);
+                    intent.putExtra(ConfigActivity.EXTRA_SWIPE_UP, swipeUpBinding); // New
+                    intent.putExtra(ConfigActivity.EXTRA_SWIPE_DOWN, swipeDownBinding); // New
+                    intent.putExtra(ConfigActivity.EXTRA_DOUBLE_TAP_TOP, doubleTapTopBinding);
+                    intent.putExtra(ConfigActivity.EXTRA_DOUBLE_TAP_BOTTOM, doubleTapBottomBinding);
+                    intent.putExtra(ConfigActivity.EXTRA_DOUBLE_TAP_LEFT, doubleTapLeftBinding); // New
+                    intent.putExtra(ConfigActivity.EXTRA_DOUBLE_TAP_RIGHT, doubleTapRightBinding); // New
                     intent.putExtra(ConfigActivity.EXTRA_GESTURE_DISTANCE, gestureDistanceThreshold);
                     intent.putExtra(ConfigActivity.EXTRA_GESTURE_VELOCITY, gestureVelocityThreshold);
                     intent.putExtra(ConfigActivity.EXTRA_URL, currentUrl);
@@ -382,6 +504,12 @@ public class MainActivity extends ComponentActivity {
             intent.putExtra(ConfigActivity.EXTRA_VOLUME_DOWN, volumeDownBinding);
             intent.putExtra(ConfigActivity.EXTRA_SWIPE_LEFT, swipeLeftBinding);
             intent.putExtra(ConfigActivity.EXTRA_SWIPE_RIGHT, swipeRightBinding);
+            intent.putExtra(ConfigActivity.EXTRA_SWIPE_UP, swipeUpBinding); // New
+            intent.putExtra(ConfigActivity.EXTRA_SWIPE_DOWN, swipeDownBinding); // New
+            intent.putExtra(ConfigActivity.EXTRA_DOUBLE_TAP_TOP, doubleTapTopBinding);
+            intent.putExtra(ConfigActivity.EXTRA_DOUBLE_TAP_BOTTOM, doubleTapBottomBinding);
+            intent.putExtra(ConfigActivity.EXTRA_DOUBLE_TAP_LEFT, doubleTapLeftBinding); // New
+            intent.putExtra(ConfigActivity.EXTRA_DOUBLE_TAP_RIGHT, doubleTapRightBinding); // New
             intent.putExtra(ConfigActivity.EXTRA_GESTURE_DISTANCE, gestureDistanceThreshold);
             intent.putExtra(ConfigActivity.EXTRA_GESTURE_VELOCITY, gestureVelocityThreshold);
             intent.putExtra(ConfigActivity.EXTRA_URL, currentUrl);
@@ -441,7 +569,14 @@ public class MainActivity extends ComponentActivity {
                 return KeyEvent.KEYCODE_DPAD_LEFT;
             case "Right":
                 return KeyEvent.KEYCODE_DPAD_RIGHT;
+            case "Up":
+                return KeyEvent.KEYCODE_DPAD_UP;
+            case "Down":
+                return KeyEvent.KEYCODE_DPAD_DOWN;
+            case "None":
+                return KeyEvent.KEYCODE_UNKNOWN;
             default:
+                Log.w(TAG, "Unknown binding: " + binding + ", defaulting to KEYCODE_UNKNOWN");
                 return KeyEvent.KEYCODE_UNKNOWN;
         }
     }
@@ -454,6 +589,12 @@ public class MainActivity extends ComponentActivity {
         outState.putString("volumeDownBinding", volumeDownBinding);
         outState.putString("swipeLeftBinding", swipeLeftBinding);
         outState.putString("swipeRightBinding", swipeRightBinding);
+        outState.putString("swipeUpBinding", swipeUpBinding); // New
+        outState.putString("swipeDownBinding", swipeDownBinding); // New
+        outState.putString("doubleTapTopBinding", doubleTapTopBinding);
+        outState.putString("doubleTapBottomBinding", doubleTapBottomBinding);
+        outState.putString("doubleTapLeftBinding", doubleTapLeftBinding); // New
+        outState.putString("doubleTapRightBinding", doubleTapRightBinding); // New
         outState.putFloat("gestureDistanceThreshold", gestureDistanceThreshold);
         outState.putFloat("gestureVelocityThreshold", gestureVelocityThreshold);
         outState.putString("currentUrl", currentUrl);
@@ -470,6 +611,12 @@ public class MainActivity extends ComponentActivity {
         volumeDownBinding = savedInstanceState.getString("volumeDownBinding", prefs.getString(KEY_VOLUME_DOWN, "Page Down"));
         swipeLeftBinding = savedInstanceState.getString("swipeLeftBinding", prefs.getString(KEY_SWIPE_LEFT, "Right"));
         swipeRightBinding = savedInstanceState.getString("swipeRightBinding", prefs.getString(KEY_SWIPE_RIGHT, "Left"));
+        swipeUpBinding = savedInstanceState.getString("swipeUpBinding", prefs.getString(KEY_SWIPE_UP, "None")); // New
+        swipeDownBinding = savedInstanceState.getString("swipeDownBinding", prefs.getString(KEY_SWIPE_DOWN, "None")); // New
+        doubleTapTopBinding = savedInstanceState.getString("doubleTapTopBinding", prefs.getString(KEY_DOUBLE_TAP_TOP, "None"));
+        doubleTapBottomBinding = savedInstanceState.getString("doubleTapBottomBinding", prefs.getString(KEY_DOUBLE_TAP_BOTTOM, "None"));
+        doubleTapLeftBinding = savedInstanceState.getString("doubleTapLeftBinding", prefs.getString(KEY_DOUBLE_TAP_LEFT, "None")); // New
+        doubleTapRightBinding = savedInstanceState.getString("doubleTapRightBinding", prefs.getString(KEY_DOUBLE_TAP_RIGHT, "None")); // New
         gestureDistanceThreshold = savedInstanceState.getFloat("gestureDistanceThreshold", prefs.getFloat(KEY_GESTURE_DISTANCE, 100f));
         gestureVelocityThreshold = savedInstanceState.getFloat("gestureVelocityThreshold", prefs.getFloat(KEY_GESTURE_VELOCITY, 100f));
         currentUrl = savedInstanceState.getString("currentUrl", prefs.getString(KEY_URL, null));
@@ -478,6 +625,9 @@ public class MainActivity extends ComponentActivity {
         applyFullscreenMode();
         Log.d(TAG, "State restored for rotation: Volume Up=" + volumeUpBinding + ", Volume Down=" + volumeDownBinding +
                 ", Swipe Left=" + swipeLeftBinding + ", Swipe Right=" + swipeRightBinding +
+                ", Swipe Up=" + swipeUpBinding + ", Swipe Down=" + swipeDownBinding +
+                ", Double Tap Top=" + doubleTapTopBinding + ", Double Tap Bottom=" + doubleTapBottomBinding +
+                ", Double Tap Left=" + doubleTapLeftBinding + ", Double Tap Right=" + doubleTapRightBinding +
                 ", Distance=" + gestureDistanceThreshold + ", Velocity=" + gestureVelocityThreshold +
                 ", Fullscreen=" + fullscreenEnabled + ", URL=" + currentUrl);
 
