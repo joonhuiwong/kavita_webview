@@ -520,6 +520,7 @@ public class MainActivity extends ComponentActivity {
         });
 
         buttonExit.setOnClickListener(v -> {
+            dialog.dismiss();
             finish();
             Log.d(TAG, "Exiting app from dialog");
         });
