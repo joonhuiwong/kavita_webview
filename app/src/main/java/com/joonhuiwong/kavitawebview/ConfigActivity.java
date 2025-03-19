@@ -30,7 +30,7 @@ public class ConfigActivity extends ComponentActivity {
     public static final String EXTRA_FULLSCREEN = "fullscreen";
     private static final float DEFAULT_GESTURE_DISTANCE = 100f;
     private static final float DEFAULT_GESTURE_VELOCITY = 100f;
-    private static final boolean DEFAULT_FULLSCREEN = false;
+    private static final boolean DEFAULT_FULLSCREEN = true; // Changed to true
 
     private Spinner spinnerVolumeUp;
     private Spinner spinnerVolumeDown;
@@ -104,21 +104,15 @@ public class ConfigActivity extends ComponentActivity {
         }
         switchFullscreen.setChecked(fullscreen);
 
-        // Initially disable Save button if URL is empty
         buttonSave.setEnabled(url != null && isValidUrl(url));
         updateSaveButtonState();
 
-        // Add TextWatcher to monitor URL input
         editTextUrl.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-                // No action needed
-            }
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
 
             @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                // No action needed
-            }
+            public void onTextChanged(CharSequence s, int start, int before, int count) {}
 
             @Override
             public void afterTextChanged(Editable s) {
@@ -126,13 +120,12 @@ public class ConfigActivity extends ComponentActivity {
                 boolean isValid = isValidUrl(input);
                 buttonSave.setEnabled(isValid);
                 updateSaveButtonState();
-                // Update hint dynamically (red * when empty, normal when filled)
                 if (input.isEmpty()) {
                     editTextUrl.setHint("Enter URL *");
-                    editTextUrl.setHintTextColor(0xFFFF0000); // Red
+                    editTextUrl.setHintTextColor(0xFFFF0000);
                 } else {
                     editTextUrl.setHint("Enter URL");
-                    editTextUrl.setHintTextColor(0xFF757575); // Default gray
+                    editTextUrl.setHintTextColor(0xFF757575);
                 }
                 Log.d(TAG, "URL input changed: " + input + ", Save enabled: " + isValid);
             }
@@ -148,7 +141,7 @@ public class ConfigActivity extends ComponentActivity {
                         spinnerSwipeRight.setSelection(adapter.getPosition("Left"));
                         sliderGestureDistance.setValue(DEFAULT_GESTURE_DISTANCE);
                         sliderGestureVelocity.setValue(DEFAULT_GESTURE_VELOCITY);
-                        switchFullscreen.setChecked(DEFAULT_FULLSCREEN);
+                        switchFullscreen.setChecked(DEFAULT_FULLSCREEN); // Uses true
                         Log.d(TAG, "Confirmed reset to defaults: Volume Up=Page Up, Volume Down=Page Down, " +
                                 "Swipe Left=Right, Swipe Right=Left, Distance=" + DEFAULT_GESTURE_DISTANCE +
                                 ", Velocity=" + DEFAULT_GESTURE_VELOCITY + ", Fullscreen=" + DEFAULT_FULLSCREEN +
@@ -215,9 +208,9 @@ public class ConfigActivity extends ComponentActivity {
 
     private void updateSaveButtonState() {
         if (buttonSave.isEnabled()) {
-            buttonSave.setBackgroundTintList(android.content.res.ColorStateList.valueOf(0xFF4AC694)); // Green
+            buttonSave.setBackgroundTintList(android.content.res.ColorStateList.valueOf(0xFF4AC694));
         } else {
-            buttonSave.setBackgroundTintList(android.content.res.ColorStateList.valueOf(0xFFB0B0B0)); // Gray like Cancel
+            buttonSave.setBackgroundTintList(android.content.res.ColorStateList.valueOf(0xFFB0B0B0));
         }
     }
 }

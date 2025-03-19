@@ -63,7 +63,7 @@ public class MainActivity extends ComponentActivity {
                     float newGestureDistance = result.getData().getFloatExtra(ConfigActivity.EXTRA_GESTURE_DISTANCE, 100f);
                     float newGestureVelocity = result.getData().getFloatExtra(ConfigActivity.EXTRA_GESTURE_VELOCITY, 100f);
                     String newUrl = result.getData().getStringExtra(ConfigActivity.EXTRA_URL);
-                    boolean newFullscreen = result.getData().getBooleanExtra(ConfigActivity.EXTRA_FULLSCREEN, false);
+                    boolean newFullscreen = result.getData().getBooleanExtra(ConfigActivity.EXTRA_FULLSCREEN, true); // Changed default to true
 
                     volumeUpBinding = newVolumeUp;
                     volumeDownBinding = newVolumeDown;
@@ -121,7 +121,7 @@ public class MainActivity extends ComponentActivity {
         swipeRightBinding = prefs.getString(KEY_SWIPE_RIGHT, "Left");
         gestureDistanceThreshold = prefs.getFloat(KEY_GESTURE_DISTANCE, 100f);
         gestureVelocityThreshold = prefs.getFloat(KEY_GESTURE_VELOCITY, 100f);
-        fullscreenEnabled = prefs.getBoolean(KEY_FULLSCREEN, false);
+        fullscreenEnabled = prefs.getBoolean(KEY_FULLSCREEN, true); // Changed default to true
         currentUrl = prefs.getString(KEY_URL, null);
 
         webView = findViewById(R.id.webView);
@@ -395,7 +395,6 @@ public class MainActivity extends ComponentActivity {
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
         webView.restoreState(savedInstanceState);
-        // Load from SharedPreferences instead of instance state, but update for rotation
         volumeUpBinding = savedInstanceState.getString("volumeUpBinding", prefs.getString(KEY_VOLUME_UP, "Page Up"));
         volumeDownBinding = savedInstanceState.getString("volumeDownBinding", prefs.getString(KEY_VOLUME_DOWN, "Page Down"));
         swipeLeftBinding = savedInstanceState.getString("swipeLeftBinding", prefs.getString(KEY_SWIPE_LEFT, "Right"));
@@ -404,7 +403,7 @@ public class MainActivity extends ComponentActivity {
         gestureVelocityThreshold = savedInstanceState.getFloat("gestureVelocityThreshold", prefs.getFloat(KEY_GESTURE_VELOCITY, 100f));
         currentUrl = savedInstanceState.getString("currentUrl", prefs.getString(KEY_URL, null));
         shouldClearHistory = savedInstanceState.getBoolean("shouldClearHistory", false);
-        fullscreenEnabled = savedInstanceState.getBoolean("fullscreenEnabled", prefs.getBoolean(KEY_FULLSCREEN, false));
+        fullscreenEnabled = savedInstanceState.getBoolean("fullscreenEnabled", prefs.getBoolean(KEY_FULLSCREEN, true)); // Changed default to true
         applyFullscreenMode();
         Log.d(TAG, "State restored for rotation: Volume Up=" + volumeUpBinding + ", Volume Down=" + volumeDownBinding +
                 ", Swipe Left=" + swipeLeftBinding + ", Swipe Right=" + swipeRightBinding +
