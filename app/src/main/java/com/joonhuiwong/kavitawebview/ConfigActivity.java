@@ -104,7 +104,7 @@ public class ConfigActivity extends ComponentActivity {
         }
         switchFullscreen.setChecked(fullscreen);
 
-        buttonSave.setEnabled(url != null && isValidUrl(url));
+        buttonSave.setEnabled(isValidUrl(url));
         updateSaveButtonState();
 
         editTextUrl.addTextChangedListener(new TextWatcher() {
@@ -131,28 +131,24 @@ public class ConfigActivity extends ComponentActivity {
             }
         });
 
-        buttonReset.setOnClickListener(v -> {
-            new AlertDialog.Builder(this)
-                    .setMessage("Are you sure you want to Reset to Defaults?")
-                    .setPositiveButton("Yes", (dialog, which) -> {
-                        spinnerVolumeUp.setSelection(adapter.getPosition("Page Up"));
-                        spinnerVolumeDown.setSelection(adapter.getPosition("Page Down"));
-                        spinnerSwipeLeft.setSelection(adapter.getPosition("Right"));
-                        spinnerSwipeRight.setSelection(adapter.getPosition("Left"));
-                        sliderGestureDistance.setValue(DEFAULT_GESTURE_DISTANCE);
-                        sliderGestureVelocity.setValue(DEFAULT_GESTURE_VELOCITY);
-                        switchFullscreen.setChecked(DEFAULT_FULLSCREEN); // Uses true
-                        Log.d(TAG, "Confirmed reset to defaults: Volume Up=Page Up, Volume Down=Page Down, " +
-                                "Swipe Left=Right, Swipe Right=Left, Distance=" + DEFAULT_GESTURE_DISTANCE +
-                                ", Velocity=" + DEFAULT_GESTURE_VELOCITY + ", Fullscreen=" + DEFAULT_FULLSCREEN +
-                                ", URL unchanged=" + editTextUrl.getText().toString());
-                    })
-                    .setNegativeButton("No", (dialog, which) -> {
-                        Log.d(TAG, "Reset to defaults cancelled");
-                    })
-                    .setCancelable(true)
-                    .show();
-        });
+        buttonReset.setOnClickListener(v -> new AlertDialog.Builder(this)
+                .setMessage("Are you sure you want to Reset to Defaults?")
+                .setPositiveButton("Yes", (dialog, which) -> {
+                    spinnerVolumeUp.setSelection(adapter.getPosition("Page Up"));
+                    spinnerVolumeDown.setSelection(adapter.getPosition("Page Down"));
+                    spinnerSwipeLeft.setSelection(adapter.getPosition("Right"));
+                    spinnerSwipeRight.setSelection(adapter.getPosition("Left"));
+                    sliderGestureDistance.setValue(DEFAULT_GESTURE_DISTANCE);
+                    sliderGestureVelocity.setValue(DEFAULT_GESTURE_VELOCITY);
+                    switchFullscreen.setChecked(DEFAULT_FULLSCREEN); // Uses true
+                    Log.d(TAG, "Confirmed reset to defaults: Volume Up=Page Up, Volume Down=Page Down, " +
+                            "Swipe Left=Right, Swipe Right=Left, Distance=" + DEFAULT_GESTURE_DISTANCE +
+                            ", Velocity=" + DEFAULT_GESTURE_VELOCITY + ", Fullscreen=" + DEFAULT_FULLSCREEN +
+                            ", URL unchanged=" + editTextUrl.getText().toString());
+                })
+                .setNegativeButton("No", (dialog, which) -> Log.d(TAG, "Reset to defaults cancelled"))
+                .setCancelable(true)
+                .show());
 
         buttonSave.setOnClickListener(v -> {
             if (!buttonSave.isEnabled()) {

@@ -1,5 +1,6 @@
 package com.joonhuiwong.kavitawebview;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -24,9 +25,12 @@ import androidx.activity.ComponentActivity;
 import androidx.activity.OnBackPressedCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
 import androidx.core.view.GestureDetectorCompat;
 
 import com.google.android.material.button.MaterialButton;
+
+import java.util.Objects;
 
 public class MainActivity extends ComponentActivity {
 
@@ -129,7 +133,7 @@ public class MainActivity extends ComponentActivity {
 
         gestureDetector = new GestureDetectorCompat(this, new GestureDetector.SimpleOnGestureListener() {
             @Override
-            public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+            public boolean onFling(MotionEvent e1, @NonNull MotionEvent e2, float velocityX, float velocityY) {
                 float diffX = e2.getX() - e1.getX();
                 float diffY = e2.getY() - e1.getY();
                 if (Math.abs(diffX) > Math.abs(diffY) &&
@@ -158,16 +162,7 @@ public class MainActivity extends ComponentActivity {
 
         WebView.setWebContentsDebuggingEnabled(true);
 
-        WebSettings webSettings = webView.getSettings();
-        webSettings.setJavaScriptEnabled(true);
-        webSettings.setDomStorageEnabled(true);
-        webSettings.setDatabaseEnabled(true);
-        webSettings.setSupportZoom(false);
-        webSettings.setAllowFileAccess(true);
-        webSettings.setMixedContentMode(WebSettings.MIXED_CONTENT_ALWAYS_ALLOW);
-        webSettings.setJavaScriptCanOpenWindowsAutomatically(true);
-        webSettings.setLoadsImagesAutomatically(true);
-        webSettings.setUserAgentString("Mozilla/5.0 (Linux; Android 13; SM-A536B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36");
+        WebSettings webSettings = getWebSettings();
         Log.d(TAG, "WebView settings: JS=" + webSettings.getJavaScriptEnabled() +
                 ", DOM=" + webSettings.getDomStorageEnabled() + ", UA=" + webSettings.getUserAgentString());
 
@@ -260,6 +255,22 @@ public class MainActivity extends ComponentActivity {
         }
     }
 
+    @SuppressLint("SetJavaScriptEnabled")
+    @NonNull
+    private WebSettings getWebSettings() {
+        WebSettings webSettings = webView.getSettings();
+        webSettings.setJavaScriptEnabled(true);
+        webSettings.setDomStorageEnabled(true);
+        webSettings.setDatabaseEnabled(true);
+        webSettings.setSupportZoom(false);
+        webSettings.setAllowFileAccess(true);
+        webSettings.setMixedContentMode(WebSettings.MIXED_CONTENT_ALWAYS_ALLOW);
+        webSettings.setJavaScriptCanOpenWindowsAutomatically(true);
+        webSettings.setLoadsImagesAutomatically(true);
+        webSettings.setUserAgentString("Mozilla/5.0 (Linux; Android 13; SM-A536B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36");
+        return webSettings;
+    }
+
     private void applyFullscreenMode() {
         Window window = getWindow();
         View decorView = window.getDecorView();
@@ -316,7 +327,7 @@ public class MainActivity extends ComponentActivity {
         MaterialButton buttonClose = dialogView.findViewById(R.id.button_close);
 
         AlertDialog dialog = builder.create();
-        dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+        Objects.requireNonNull(dialog.getWindow()).setBackgroundDrawableResource(android.R.color.transparent);
 
         buttonConfig.setOnClickListener(v -> {
             Intent intent = new Intent(MainActivity.this, ConfigActivity.class);
@@ -375,8 +386,6 @@ public class MainActivity extends ComponentActivity {
 
     private int getKeyCodeFromBinding(String binding) {
         switch (binding) {
-            case "None":
-                return KeyEvent.KEYCODE_UNKNOWN;
             case "Page Up":
                 return KeyEvent.KEYCODE_PAGE_UP;
             case "Page Down":
@@ -391,7 +400,7 @@ public class MainActivity extends ComponentActivity {
     }
 
     @Override
-    protected void onSaveInstanceState(Bundle outState) {
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
         webView.saveState(outState);
         outState.putString("volumeUpBinding", volumeUpBinding);
@@ -407,7 +416,7 @@ public class MainActivity extends ComponentActivity {
     }
 
     @Override
-    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+    protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
         webView.restoreState(savedInstanceState);
         volumeUpBinding = savedInstanceState.getString("volumeUpBinding", prefs.getString(KEY_VOLUME_UP, "Page Up"));
