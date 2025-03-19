@@ -28,7 +28,7 @@ public class ConfigActivity extends ComponentActivity {
     public static final String EXTRA_FULLSCREEN = "fullscreen";
     private static final float DEFAULT_GESTURE_DISTANCE = 100f;
     private static final float DEFAULT_GESTURE_VELOCITY = 100f;
-    private static final boolean DEFAULT_FULLSCREEN = true;
+    private static final boolean DEFAULT_FULLSCREEN = false;
 
     private Spinner spinnerVolumeUp;
     private Spinner spinnerVolumeDown;

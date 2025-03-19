@@ -9,6 +9,8 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.webkit.CookieManager;
 import android.webkit.WebResourceError;
 import android.webkit.WebResourceRequest;
@@ -36,7 +38,7 @@ public class MainActivity extends ComponentActivity {
     private float gestureVelocityThreshold = 100f;
     private String currentUrl = null;
     private boolean shouldClearHistory = false;
-    private boolean fullscreenEnabled = true; // Default to true
+    private boolean fullscreenEnabled = false; // Default to true
     private GestureDetectorCompat gestureDetector;
 
     private final ActivityResultLauncher<Intent> configLauncher = registerForActivityResult(
@@ -83,9 +85,13 @@ public class MainActivity extends ComponentActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        applyFullscreenMode(); // Apply on startup
-
         webView = findViewById(R.id.webView);
+
+        // Apply fullscreen mode after view is set
+        applyFullscreenMode();
+
+        // Ensure fullscreen persists after layout
+        webView.getRootView().getViewTreeObserver().addOnGlobalLayoutListener(() -> applyFullscreenMode());
 
         gestureDetector = new GestureDetectorCompat(this, new GestureDetector.SimpleOnGestureListener() {
             @Override
@@ -206,17 +212,29 @@ public class MainActivity extends ComponentActivity {
     }
 
     private void applyFullscreenMode() {
+        Window window = getWindow();
+        View decorView = window.getDecorView();
         if (fullscreenEnabled) {
-            getWindow().getDecorView().setSystemUiVisibility(
+            // Set flags for fullscreen and immersive mode
+            decorView.setSystemUiVisibility(
                     View.SYSTEM_UI_FLAG_FULLSCREEN |
                             View.SYSTEM_UI_FLAG_HIDE_NAVIGATION |
-                            View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                            View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY |
+                            View.SYSTEM_UI_FLAG_LAYOUT_STABLE |
+                            View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION |
+                            View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
             );
+            // Ensure status bar is hidden
+            window.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
             Log.d(TAG, "Fullscreen mode enabled");
         } else {
-            getWindow().getDecorView().setSystemUiVisibility(0); // Reset to default
+            // Clear fullscreen flags
+            decorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_VISIBLE);
+            window.clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
             Log.d(TAG, "Fullscreen mode disabled");
         }
+        // Force layout redraw
+        decorView.requestLayout();
     }
 
     private void showConfigPrompt() {
@@ -361,5 +379,11 @@ public class MainActivity extends ComponentActivity {
                 ", Swipe Left=" + swipeLeftBinding + ", Swipe Right=" + swipeRightBinding +
                 ", Distance=" + gestureDistanceThreshold + ", Velocity=" + gestureVelocityThreshold +
                 ", Fullscreen=" + fullscreenEnabled + ", URL=" + currentUrl);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        applyFullscreenMode(); // Reapply on resume to ensure persistence
     }
 }
