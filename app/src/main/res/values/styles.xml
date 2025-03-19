@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Custom Material Button style with reduced corner radius -->
+    <style name="CustomMaterialButton" parent="Widget.Material3.Button">
+        <item name="cornerRadius">4dp</item> <!-- Reduced from default 8dp -->
+    </style>
+</resources>

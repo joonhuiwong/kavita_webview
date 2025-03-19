@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="key_options">
+        <item>None</item>
+        <item>Page Up</item>
+        <item>Page Down</item>
+        <item>Left</item>
+        <item>Right</item>
+    </string-array>
+</resources>
