@@ -52,7 +52,8 @@
                 android:id="@+id/edittext_url"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Enter URL"
+                android:hint="Enter URL *"
+                android:textColorHint="#FF0000"
                 android:inputType="textUri" />
 
             <View

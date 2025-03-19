@@ -3,6 +3,8 @@ package com.joonhuiwong.kavitawebview;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
@@ -38,6 +40,7 @@ public class ConfigActivity extends ComponentActivity {
     private Slider sliderGestureDistance;
     private Slider sliderGestureVelocity;
     private SwitchMaterial switchFullscreen;
+    private MaterialButton buttonSave;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,7 +56,7 @@ public class ConfigActivity extends ComponentActivity {
         sliderGestureVelocity = findViewById(R.id.slider_gesture_velocity);
         switchFullscreen = findViewById(R.id.switch_fullscreen);
         MaterialButton buttonReset = findViewById(R.id.button_reset);
-        MaterialButton buttonSave = findViewById(R.id.button_save);
+        buttonSave = findViewById(R.id.button_save);
         MaterialButton buttonCancel = findViewById(R.id.button_cancel);
 
         Intent intent = getIntent();
@@ -101,6 +104,40 @@ public class ConfigActivity extends ComponentActivity {
         }
         switchFullscreen.setChecked(fullscreen);
 
+        // Initially disable Save button if URL is empty
+        buttonSave.setEnabled(url != null && isValidUrl(url));
+        updateSaveButtonState();
+
+        // Add TextWatcher to monitor URL input
+        editTextUrl.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                // No action needed
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                // No action needed
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                String input = s.toString().trim();
+                boolean isValid = isValidUrl(input);
+                buttonSave.setEnabled(isValid);
+                updateSaveButtonState();
+                // Update hint dynamically (red * when empty, normal when filled)
+                if (input.isEmpty()) {
+                    editTextUrl.setHint("Enter URL *");
+                    editTextUrl.setHintTextColor(0xFFFF0000); // Red
+                } else {
+                    editTextUrl.setHint("Enter URL");
+                    editTextUrl.setHintTextColor(0xFF757575); // Default gray
+                }
+                Log.d(TAG, "URL input changed: " + input + ", Save enabled: " + isValid);
+            }
+        });
+
         buttonReset.setOnClickListener(v -> {
             new AlertDialog.Builder(this)
                     .setMessage("Are you sure you want to Reset to Defaults?")
@@ -125,6 +162,10 @@ public class ConfigActivity extends ComponentActivity {
         });
 
         buttonSave.setOnClickListener(v -> {
+            if (!buttonSave.isEnabled()) {
+                Log.d(TAG, "Save button clicked but disabled due to invalid URL");
+                return;
+            }
             String selectedVolumeUp = spinnerVolumeUp.getSelectedItem().toString();
             String selectedVolumeDown = spinnerVolumeDown.getSelectedItem().toString();
             String selectedSwipeLeft = spinnerSwipeLeft.getSelectedItem().toString();
@@ -170,5 +211,13 @@ public class ConfigActivity extends ComponentActivity {
             return false;
         }
         return (url.startsWith("http://") || url.startsWith("https://")) && url.length() > "http://".length();
+    }
+
+    private void updateSaveButtonState() {
+        if (buttonSave.isEnabled()) {
+            buttonSave.setBackgroundTintList(android.content.res.ColorStateList.valueOf(0xFF4AC694)); // Green
+        } else {
+            buttonSave.setBackgroundTintList(android.content.res.ColorStateList.valueOf(0xFFB0B0B0)); // Gray like Cancel
+        }
     }
 }
