@@ -9,7 +9,7 @@
         android:id="@+id/button_config"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Config"
+        android:text="Configuration"
         android:layout_marginBottom="8dp"
         style="@style/CustomMaterialButton" />
 
@@ -17,8 +17,9 @@
         android:id="@+id/button_exit"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Exit App"
+        android:text="Exit Application"
         android:layout_marginBottom="8dp"
+        android:backgroundTint="#FF6B6B"
         style="@style/CustomMaterialButton" />
 
     <com.google.android.material.button.MaterialButton
@@ -26,5 +27,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Close"
+        android:backgroundTint="#B0B0B0"
         style="@style/CustomMaterialButton" />
 </LinearLayout>
