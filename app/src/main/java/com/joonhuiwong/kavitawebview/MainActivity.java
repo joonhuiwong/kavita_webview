@@ -15,6 +15,7 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.webkit.CookieManager;
+import android.webkit.SslErrorHandler;
 import android.webkit.WebResourceError;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebSettings;
@@ -26,7 +27,6 @@ import androidx.activity.OnBackPressedCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
-import androidx.core.view.GestureDetectorCompat;
 
 import com.google.android.material.button.MaterialButton;
 
@@ -54,7 +54,7 @@ public class MainActivity extends ComponentActivity {
     private String currentUrl;
     private boolean shouldClearHistory = false;
     private boolean fullscreenEnabled;
-    private GestureDetectorCompat gestureDetector;
+    private GestureDetector gestureDetector;
     private SharedPreferences prefs;
 
     private final ActivityResultLauncher<Intent> configLauncher = registerForActivityResult(
@@ -111,6 +111,7 @@ public class MainActivity extends ComponentActivity {
                 }
             });
 
+    @SuppressLint("ClickableViewAccessibility")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -131,7 +132,7 @@ public class MainActivity extends ComponentActivity {
 
         applyFullscreenMode();
 
-        gestureDetector = new GestureDetectorCompat(this, new GestureDetector.SimpleOnGestureListener() {
+        gestureDetector = new GestureDetector(this, new GestureDetector.SimpleOnGestureListener() {
             @Override
             public boolean onFling(MotionEvent e1, @NonNull MotionEvent e2, float velocityX, float velocityY) {
                 float diffX = e2.getX() - e1.getX();
@@ -156,6 +157,13 @@ public class MainActivity extends ComponentActivity {
                     }
                     return true;
                 }
+                return false;
+            }
+
+            @Override
+            public boolean onSingleTapUp(@NonNull MotionEvent e) {
+                webView.performClick();
+                Log.d(TAG, "Single tap detected, calling performClick for accessibility");
                 return false;
             }
         });
@@ -207,10 +215,48 @@ public class MainActivity extends ComponentActivity {
                         "text/html", "UTF-8");
             }
 
+            @SuppressLint("WebViewClientOnReceivedSslError")
             @Override
-            public void onReceivedSslError(WebView view, android.webkit.SslErrorHandler handler, android.net.http.SslError error) {
+            public void onReceivedSslError(WebView view, SslErrorHandler handler, android.net.http.SslError error) {
                 Log.e(TAG, "SSL Error: " + error.toString());
-                handler.proceed();
+                // Show a dialog to let the user decide
+                new AlertDialog.Builder(MainActivity.this)
+                        .setTitle("SSL Security Warning")
+                        .setMessage("The website's security certificate is not trusted.\n\n" +
+                                "Error: " + getSslErrorMessage(error) + "\n\n" +
+                                "Do you want to proceed anyway? This may pose a security risk.")
+                        .setPositiveButton("Proceed", (dialog, which) -> {
+                            Log.d(TAG, "User chose to proceed with SSL error");
+                            handler.proceed();
+                        })
+                        .setNegativeButton("Cancel", (dialog, which) -> {
+                            Log.d(TAG, "User cancelled SSL error, blocking connection");
+                            handler.cancel();
+                            view.loadData("<html><body><h1>Connection Blocked: SSL Error</h1></body></html>",
+                                    "text/html", "UTF-8");
+                        })
+                        .setCancelable(false)
+                        .show();
+            }
+
+            // Helper method to translate SSL error codes to user-friendly messages
+            private String getSslErrorMessage(android.net.http.SslError error) {
+                switch (error.getPrimaryError()) {
+                    case android.net.http.SslError.SSL_UNTRUSTED:
+                        return "The certificate authority is not trusted.";
+                    case android.net.http.SslError.SSL_EXPIRED:
+                        return "The certificate has expired.";
+                    case android.net.http.SslError.SSL_IDMISMATCH:
+                        return "The certificate hostname mismatch.";
+                    case android.net.http.SslError.SSL_NOTYETVALID:
+                        return "The certificate is not yet valid.";
+                    case android.net.http.SslError.SSL_DATE_INVALID:
+                        return "The certificate date is invalid.";
+                    case android.net.http.SslError.SSL_INVALID:
+                        return "The certificate is invalid.";
+                    default:
+                        return "An unknown SSL error occurred.";
+                }
             }
         });
 
@@ -227,9 +273,9 @@ public class MainActivity extends ComponentActivity {
         }
 
         // Handle back navigation based on API level
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) { // API 33+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             getOnBackInvokedDispatcher().registerOnBackInvokedCallback(
-                    0, // Corrected constant
+                    0,
                     () -> {
                         if (webView.canGoBack()) {
                             webView.goBack();
@@ -239,7 +285,7 @@ public class MainActivity extends ComponentActivity {
                         }
                     }
             );
-        } else { // API 23–32
+        } else {
             OnBackPressedCallback callback = new OnBackPressedCallback(true) {
                 @Override
                 public void handleOnBackPressed() {
@@ -295,6 +341,7 @@ public class MainActivity extends ComponentActivity {
 
     private void showConfigPrompt() {
         new AlertDialog.Builder(this)
+                .setTitle("Configuration Required")
                 .setMessage("Please enter your Kavita URL (required)")
                 .setPositiveButton("Configure", (dialog, which) -> {
                     Intent intent = new Intent(MainActivity.this, ConfigActivity.class);
