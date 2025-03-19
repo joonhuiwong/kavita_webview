@@ -36,6 +36,7 @@ public class MainActivity extends ComponentActivity {
     private float gestureVelocityThreshold = 100f;
     private String currentUrl = null;
     private boolean shouldClearHistory = false;
+    private boolean fullscreenEnabled = true; // Default to true
     private GestureDetectorCompat gestureDetector;
 
     private final ActivityResultLauncher<Intent> configLauncher = registerForActivityResult(
@@ -49,6 +50,7 @@ public class MainActivity extends ComponentActivity {
                     float newGestureDistance = result.getData().getFloatExtra(ConfigActivity.EXTRA_GESTURE_DISTANCE, 100f);
                     float newGestureVelocity = result.getData().getFloatExtra(ConfigActivity.EXTRA_GESTURE_VELOCITY, 100f);
                     String newUrl = result.getData().getStringExtra(ConfigActivity.EXTRA_URL);
+                    boolean newFullscreen = result.getData().getBooleanExtra(ConfigActivity.EXTRA_FULLSCREEN, true);
 
                     volumeUpBinding = newVolumeUp;
                     volumeDownBinding = newVolumeDown;
@@ -56,9 +58,13 @@ public class MainActivity extends ComponentActivity {
                     swipeRightBinding = newSwipeRight;
                     gestureDistanceThreshold = newGestureDistance;
                     gestureVelocityThreshold = newGestureVelocity;
+                    fullscreenEnabled = newFullscreen;
                     Log.d(TAG, "Updated bindings: Volume Up=" + volumeUpBinding + ", Volume Down=" + volumeDownBinding +
                             ", Swipe Left=" + swipeLeftBinding + ", Swipe Right=" + swipeRightBinding +
-                            ", Distance=" + gestureDistanceThreshold + ", Velocity=" + gestureVelocityThreshold);
+                            ", Distance=" + gestureDistanceThreshold + ", Velocity=" + gestureVelocityThreshold +
+                            ", Fullscreen=" + fullscreenEnabled);
+
+                    applyFullscreenMode(); // Apply fullscreen setting immediately
 
                     if (newUrl != null && !newUrl.equals(currentUrl)) {
                         currentUrl = newUrl;
@@ -67,7 +73,6 @@ public class MainActivity extends ComponentActivity {
                         Log.d(TAG, "URL changed, will clear history after load: " + currentUrl);
                     }
                 }
-                // After config screen, if URL is still unset, prompt again
                 if (currentUrl == null || currentUrl.isEmpty()) {
                     showConfigPrompt();
                 }
@@ -78,11 +83,7 @@ public class MainActivity extends ComponentActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        getWindow().getDecorView().setSystemUiVisibility(
-                View.SYSTEM_UI_FLAG_FULLSCREEN |
-                        View.SYSTEM_UI_FLAG_HIDE_NAVIGATION |
-                        View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-        );
+        applyFullscreenMode(); // Apply on startup
 
         webView = findViewById(R.id.webView);
 
@@ -204,6 +205,20 @@ public class MainActivity extends ComponentActivity {
         getOnBackPressedDispatcher().addCallback(this, callback);
     }
 
+    private void applyFullscreenMode() {
+        if (fullscreenEnabled) {
+            getWindow().getDecorView().setSystemUiVisibility(
+                    View.SYSTEM_UI_FLAG_FULLSCREEN |
+                            View.SYSTEM_UI_FLAG_HIDE_NAVIGATION |
+                            View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+            );
+            Log.d(TAG, "Fullscreen mode enabled");
+        } else {
+            getWindow().getDecorView().setSystemUiVisibility(0); // Reset to default
+            Log.d(TAG, "Fullscreen mode disabled");
+        }
+    }
+
     private void showConfigPrompt() {
         new AlertDialog.Builder(this)
                 .setMessage("Please enter your Kavita URL")
@@ -216,12 +231,13 @@ public class MainActivity extends ComponentActivity {
                     intent.putExtra(ConfigActivity.EXTRA_GESTURE_DISTANCE, gestureDistanceThreshold);
                     intent.putExtra(ConfigActivity.EXTRA_GESTURE_VELOCITY, gestureVelocityThreshold);
                     intent.putExtra(ConfigActivity.EXTRA_URL, currentUrl);
+                    intent.putExtra(ConfigActivity.EXTRA_FULLSCREEN, fullscreenEnabled);
                     configLauncher.launch(intent);
                     Log.d(TAG, "Prompted user to configure URL");
                 })
                 .setNegativeButton("Cancel", (dialog, which) -> {
-                    Log.d(TAG, "User cancelled config prompt, no URL set");
-                    // No finish() here; let configLauncher handle it
+                    Log.d(TAG, "User cancelled config prompt, exiting app");
+                    finish();
                 })
                 .setCancelable(false)
                 .show();
@@ -248,6 +264,7 @@ public class MainActivity extends ComponentActivity {
             intent.putExtra(ConfigActivity.EXTRA_GESTURE_DISTANCE, gestureDistanceThreshold);
             intent.putExtra(ConfigActivity.EXTRA_GESTURE_VELOCITY, gestureVelocityThreshold);
             intent.putExtra(ConfigActivity.EXTRA_URL, currentUrl);
+            intent.putExtra(ConfigActivity.EXTRA_FULLSCREEN, fullscreenEnabled);
             configLauncher.launch(intent);
             dialog.dismiss();
             Log.d(TAG, "Opening ConfigActivity");
@@ -322,6 +339,7 @@ public class MainActivity extends ComponentActivity {
         outState.putFloat("gestureVelocityThreshold", gestureVelocityThreshold);
         outState.putString("currentUrl", currentUrl);
         outState.putBoolean("shouldClearHistory", shouldClearHistory);
+        outState.putBoolean("fullscreenEnabled", fullscreenEnabled);
         Log.d(TAG, "State saved");
     }
 
@@ -337,8 +355,11 @@ public class MainActivity extends ComponentActivity {
         gestureVelocityThreshold = savedInstanceState.getFloat("gestureVelocityThreshold", 100f);
         currentUrl = savedInstanceState.getString("currentUrl");
         shouldClearHistory = savedInstanceState.getBoolean("shouldClearHistory", false);
+        fullscreenEnabled = savedInstanceState.getBoolean("fullscreenEnabled", true);
+        applyFullscreenMode(); // Apply restored state
         Log.d(TAG, "State restored: Volume Up=" + volumeUpBinding + ", Volume Down=" + volumeDownBinding +
                 ", Swipe Left=" + swipeLeftBinding + ", Swipe Right=" + swipeRightBinding +
-                ", Distance=" + gestureDistanceThreshold + ", Velocity=" + gestureVelocityThreshold + ", URL=" + currentUrl);
+                ", Distance=" + gestureDistanceThreshold + ", Velocity=" + gestureVelocityThreshold +
+                ", Fullscreen=" + fullscreenEnabled + ", URL=" + currentUrl);
     }
 }
