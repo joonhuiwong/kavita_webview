@@ -3,6 +3,7 @@ package com.joonhuiwong.kavitawebview;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.GestureDetector;
@@ -63,7 +64,7 @@ public class MainActivity extends ComponentActivity {
                     float newGestureDistance = result.getData().getFloatExtra(ConfigActivity.EXTRA_GESTURE_DISTANCE, 100f);
                     float newGestureVelocity = result.getData().getFloatExtra(ConfigActivity.EXTRA_GESTURE_VELOCITY, 100f);
                     String newUrl = result.getData().getStringExtra(ConfigActivity.EXTRA_URL);
-                    boolean newFullscreen = result.getData().getBooleanExtra(ConfigActivity.EXTRA_FULLSCREEN, true); // Changed default to true
+                    boolean newFullscreen = result.getData().getBooleanExtra(ConfigActivity.EXTRA_FULLSCREEN, true);
 
                     volumeUpBinding = newVolumeUp;
                     volumeDownBinding = newVolumeDown;
@@ -73,7 +74,6 @@ public class MainActivity extends ComponentActivity {
                     gestureVelocityThreshold = newGestureVelocity;
                     fullscreenEnabled = newFullscreen;
 
-                    // Save all settings to SharedPreferences
                     SharedPreferences.Editor editor = prefs.edit();
                     editor.putString(KEY_VOLUME_UP, volumeUpBinding);
                     editor.putString(KEY_VOLUME_DOWN, volumeDownBinding);
@@ -114,14 +114,13 @@ public class MainActivity extends ComponentActivity {
 
         prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
 
-        // Load all settings from SharedPreferences with defaults
         volumeUpBinding = prefs.getString(KEY_VOLUME_UP, "Page Up");
         volumeDownBinding = prefs.getString(KEY_VOLUME_DOWN, "Page Down");
         swipeLeftBinding = prefs.getString(KEY_SWIPE_LEFT, "Right");
         swipeRightBinding = prefs.getString(KEY_SWIPE_RIGHT, "Left");
         gestureDistanceThreshold = prefs.getFloat(KEY_GESTURE_DISTANCE, 100f);
         gestureVelocityThreshold = prefs.getFloat(KEY_GESTURE_VELOCITY, 100f);
-        fullscreenEnabled = prefs.getBoolean(KEY_FULLSCREEN, true); // Changed default to true
+        fullscreenEnabled = prefs.getBoolean(KEY_FULLSCREEN, true);
         currentUrl = prefs.getString(KEY_URL, null);
 
         webView = findViewById(R.id.webView);
@@ -232,17 +231,33 @@ public class MainActivity extends ComponentActivity {
             Log.d(TAG, "Loading persisted URL: " + currentUrl);
         }
 
-        OnBackPressedCallback callback = new OnBackPressedCallback(true) {
-            @Override
-            public void handleOnBackPressed() {
-                if (webView.canGoBack()) {
-                    webView.goBack();
-                    Log.d(TAG, "Navigated back");
+        // Handle back navigation based on API level
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) { // API 33+
+            getOnBackInvokedDispatcher().registerOnBackInvokedCallback(
+                    0, // Corrected constant
+                    () -> {
+                        if (webView.canGoBack()) {
+                            webView.goBack();
+                            Log.d(TAG, "Navigated back (OnBackInvoked)");
+                        } else {
+                            showBackOptionsDialog();
+                        }
+                    }
+            );
+        } else { // API 23–32
+            OnBackPressedCallback callback = new OnBackPressedCallback(true) {
+                @Override
+                public void handleOnBackPressed() {
+                    if (webView.canGoBack()) {
+                        webView.goBack();
+                        Log.d(TAG, "Navigated back (OnBackPressed)");
+                    } else {
+                        showBackOptionsDialog();
+                    }
                 }
-                showBackOptionsDialog();
-            }
-        };
-        getOnBackPressedDispatcher().addCallback(this, callback);
+            };
+            getOnBackPressedDispatcher().addCallback(this, callback);
+        }
     }
 
     private void applyFullscreenMode() {
@@ -403,7 +418,7 @@ public class MainActivity extends ComponentActivity {
         gestureVelocityThreshold = savedInstanceState.getFloat("gestureVelocityThreshold", prefs.getFloat(KEY_GESTURE_VELOCITY, 100f));
         currentUrl = savedInstanceState.getString("currentUrl", prefs.getString(KEY_URL, null));
         shouldClearHistory = savedInstanceState.getBoolean("shouldClearHistory", false);
-        fullscreenEnabled = savedInstanceState.getBoolean("fullscreenEnabled", prefs.getBoolean(KEY_FULLSCREEN, true)); // Changed default to true
+        fullscreenEnabled = savedInstanceState.getBoolean("fullscreenEnabled", prefs.getBoolean(KEY_FULLSCREEN, true));
         applyFullscreenMode();
         Log.d(TAG, "State restored for rotation: Volume Up=" + volumeUpBinding + ", Volume Down=" + volumeDownBinding +
                 ", Swipe Left=" + swipeLeftBinding + ", Swipe Right=" + swipeRightBinding +
