@@ -6,6 +6,6 @@ public class MainConstants {
             "currentUrl", "volumeUpBinding", "volumeDownBinding", "swipeLeftBinding", "swipeRightBinding",
             "swipeUpBinding", "swipeDownBinding", "doubleTapTopBinding", "doubleTapBottomBinding",
             "doubleTapLeftBinding", "doubleTapRightBinding", "gestureDistanceThreshold", "gestureVelocityThreshold",
-            "fullscreenEnabled"
+            "hideStatusBar", "hideNavigationBar" // Replaced fullscreenEnabled with two settings
     };
 }

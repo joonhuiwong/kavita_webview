@@ -341,18 +341,40 @@
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
                     android:paddingTop="16dp">
+
                     <TextView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="Fullscreen/Immersive Mode"
+                        android:text="Hide Status Bar"
                         android:textSize="16sp" />
+
                     <com.google.android.material.switchmaterial.SwitchMaterial
-                        android:id="@+id/switch_fullscreen"
+                        android:id="@+id/switch_hide_status_bar"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:checked="true"
-                        android:contentDescription="Toggle fullscreen mode" />
+                        android:checked="true" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:paddingTop="16dp">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Hide Navigation Bar"
+                        android:textSize="16sp" />
+
+                    <com.google.android.material.switchmaterial.SwitchMaterial
+                        android:id="@+id/switch_hide_navigation_bar"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:checked="true" />
                 </LinearLayout>
             </LinearLayout>
         </LinearLayout>

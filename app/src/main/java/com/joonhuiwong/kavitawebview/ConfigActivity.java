@@ -19,7 +19,7 @@ public class ConfigActivity extends ComponentActivity {
     private EditText editTextUrl;
     private Spinner[] spinners;
     private Slider sliderGestureDistance, sliderGestureVelocity;
-    private SwitchMaterial switchFullscreen;
+    private SwitchMaterial switchHideStatusBar, switchHideNavigationBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,7 +46,8 @@ public class ConfigActivity extends ComponentActivity {
         editTextUrl = findViewById(R.id.edittext_url);
         sliderGestureDistance = findViewById(R.id.slider_gesture_distance);
         sliderGestureVelocity = findViewById(R.id.slider_gesture_velocity);
-        switchFullscreen = findViewById(R.id.switch_fullscreen);
+        switchHideStatusBar = findViewById(R.id.switch_hide_status_bar);
+        switchHideNavigationBar = findViewById(R.id.switch_hide_navigation_bar);
         MaterialButton buttonReset = findViewById(R.id.button_reset);
         MaterialButton buttonSave = findViewById(R.id.button_save);
         MaterialButton buttonCancel = findViewById(R.id.button_cancel);
@@ -73,7 +74,8 @@ public class ConfigActivity extends ComponentActivity {
             sliderGestureVelocity.setValue(intent.getFloatExtra(ConfigConstants.EXTRA_GESTURE_VELOCITY, ConfigConstants.DEFAULT_GESTURE_VELOCITY));
             String url = intent.getStringExtra(ConfigConstants.EXTRA_URL);
             if (url != null) editTextUrl.setText(url);
-            switchFullscreen.setChecked(intent.getBooleanExtra(ConfigConstants.EXTRA_FULLSCREEN, ConfigConstants.DEFAULT_FULLSCREEN));
+            switchHideStatusBar.setChecked(intent.getBooleanExtra(ConfigConstants.EXTRA_HIDE_STATUS_BAR, ConfigConstants.DEFAULT_HIDE_STATUS_BAR));
+            switchHideNavigationBar.setChecked(intent.getBooleanExtra(ConfigConstants.EXTRA_HIDE_NAVIGATION_BAR, ConfigConstants.DEFAULT_HIDE_NAVIGATION_BAR));
         } else {
             restoreState(savedInstanceState);
         }
@@ -82,18 +84,16 @@ public class ConfigActivity extends ComponentActivity {
         ConfigHelper.updateSaveButtonState(buttonSave);
 
         editTextUrl.addTextChangedListener(ConfigHelper.getUrlTextWatcher(editTextUrl, buttonSave));
-        ConfigHelper.setupResetButton(this, buttonReset, adapter, spinners, sliderGestureDistance, sliderGestureVelocity, switchFullscreen);
-        ConfigHelper.setupSaveButton(this, buttonSave, spinners, sliderGestureDistance, sliderGestureVelocity, editTextUrl, switchFullscreen);
+        ConfigHelper.setupResetButton(this, buttonReset, adapter, spinners, sliderGestureDistance, sliderGestureVelocity, switchHideStatusBar, switchHideNavigationBar);
+        ConfigHelper.setupSaveButton(this, buttonSave, spinners, sliderGestureDistance, sliderGestureVelocity, editTextUrl, switchHideStatusBar, switchHideNavigationBar);
         buttonCancel.setOnClickListener(v -> finish());
     }
 
     @Override
     public void onConfigurationChanged(@NonNull Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
-        // Save current state before reloading layout
         Bundle state = new Bundle();
         saveState(state);
-        // Reload layout for new orientation
         setupContentView(state);
     }
 
@@ -116,7 +116,8 @@ public class ConfigActivity extends ComponentActivity {
         }
         outState.putFloat("gestureDistance", sliderGestureDistance.getValue());
         outState.putFloat("gestureVelocity", sliderGestureVelocity.getValue());
-        outState.putBoolean("fullscreen", switchFullscreen.isChecked());
+        outState.putBoolean("hideStatusBar", switchHideStatusBar.isChecked());
+        outState.putBoolean("hideNavigationBar", switchHideNavigationBar.isChecked());
     }
 
     private void restoreState(Bundle savedInstanceState) {
@@ -126,6 +127,7 @@ public class ConfigActivity extends ComponentActivity {
         }
         sliderGestureDistance.setValue(savedInstanceState.getFloat("gestureDistance", ConfigConstants.DEFAULT_GESTURE_DISTANCE));
         sliderGestureVelocity.setValue(savedInstanceState.getFloat("gestureVelocity", ConfigConstants.DEFAULT_GESTURE_VELOCITY));
-        switchFullscreen.setChecked(savedInstanceState.getBoolean("fullscreen", ConfigConstants.DEFAULT_FULLSCREEN));
+        switchHideStatusBar.setChecked(savedInstanceState.getBoolean("hideStatusBar", ConfigConstants.DEFAULT_HIDE_STATUS_BAR));
+        switchHideNavigationBar.setChecked(savedInstanceState.getBoolean("hideNavigationBar", ConfigConstants.DEFAULT_HIDE_NAVIGATION_BAR));
     }
 }

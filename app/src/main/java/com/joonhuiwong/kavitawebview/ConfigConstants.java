@@ -15,8 +15,10 @@ public class ConfigConstants {
     public static final String EXTRA_GESTURE_DISTANCE = "gesture_distance";
     public static final String EXTRA_GESTURE_VELOCITY = "gesture_velocity";
     public static final String EXTRA_URL = "url";
-    public static final String EXTRA_FULLSCREEN = "fullscreen";
+    public static final String EXTRA_HIDE_STATUS_BAR = "hide_status_bar";
+    public static final String EXTRA_HIDE_NAVIGATION_BAR = "hide_navigation_bar";
     public static final float DEFAULT_GESTURE_DISTANCE = 100f;
     public static final float DEFAULT_GESTURE_VELOCITY = 100f;
-    public static final boolean DEFAULT_FULLSCREEN = true;
+    public static final boolean DEFAULT_HIDE_STATUS_BAR = true;
+    public static final boolean DEFAULT_HIDE_NAVIGATION_BAR = false;
 }

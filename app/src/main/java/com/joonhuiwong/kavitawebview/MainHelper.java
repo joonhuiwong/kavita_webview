@@ -26,7 +26,7 @@ public class MainHelper {
             doubleTapTopBinding = "None", doubleTapBottomBinding = "None", doubleTapLeftBinding = "None",
             doubleTapRightBinding = "None", currentUrl;
     public float gestureDistanceThreshold = 100f, gestureVelocityThreshold = 100f;
-    public boolean fullscreenEnabled = true;
+    public boolean hideStatusBar = true, hideNavigationBar = false; // Split fullscreen into two settings
     private final GestureDetector gestureDetector;
     public boolean shouldClearHistory = false;
 
@@ -51,7 +51,8 @@ public class MainHelper {
         doubleTapRightBinding = prefs.getString(MainConstants.PREF_KEYS[10], "None");
         gestureDistanceThreshold = prefs.getFloat(MainConstants.PREF_KEYS[11], 100f);
         gestureVelocityThreshold = prefs.getFloat(MainConstants.PREF_KEYS[12], 100f);
-        fullscreenEnabled = prefs.getBoolean(MainConstants.PREF_KEYS[13], true);
+        hideStatusBar = prefs.getBoolean(MainConstants.PREF_KEYS[13], true); // Reusing index 13 for status bar
+        hideNavigationBar = prefs.getBoolean(MainConstants.PREF_KEYS[14], true); // New index for nav bar
         currentUrl = prefs.getString(MainConstants.PREF_KEYS[0], null);
     }
 
@@ -62,15 +63,25 @@ public class MainHelper {
 
     public void applyFullscreenMode(Window window) {
         View decorView = window.getDecorView();
-        if (fullscreenEnabled) {
-            decorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_FULLSCREEN | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION |
-                    View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY | View.SYSTEM_UI_FLAG_LAYOUT_STABLE |
-                    View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
+        int uiOptions = View.SYSTEM_UI_FLAG_LAYOUT_STABLE; // Base flag for stability
+
+        if (hideStatusBar) {
+            uiOptions |= View.SYSTEM_UI_FLAG_FULLSCREEN | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN;
             window.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         } else {
-            decorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_VISIBLE);
             window.clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
         }
+
+        if (hideNavigationBar) {
+            uiOptions |= View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION |
+                    View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
+        }
+
+        if (!hideStatusBar && !hideNavigationBar) {
+            uiOptions = View.SYSTEM_UI_FLAG_VISIBLE;
+        }
+
+        decorView.setSystemUiVisibility(uiOptions);
     }
 
     public void handleConfigResult(Intent data) {
@@ -87,16 +98,24 @@ public class MainHelper {
         gestureDistanceThreshold = data.getFloatExtra(ConfigConstants.EXTRA_GESTURE_DISTANCE, 100f);
         gestureVelocityThreshold = data.getFloatExtra(ConfigConstants.EXTRA_GESTURE_VELOCITY, 100f);
         String newUrl = data.getStringExtra(ConfigConstants.EXTRA_URL);
-        fullscreenEnabled = data.getBooleanExtra(ConfigConstants.EXTRA_FULLSCREEN, true);
+        hideStatusBar = data.getBooleanExtra(ConfigConstants.EXTRA_HIDE_STATUS_BAR, ConfigConstants.DEFAULT_HIDE_STATUS_BAR);
+        hideNavigationBar = data.getBooleanExtra(ConfigConstants.EXTRA_HIDE_NAVIGATION_BAR, ConfigConstants.DEFAULT_HIDE_NAVIGATION_BAR);
 
         SharedPreferences.Editor editor = prefs.edit();
-        editor.putString(MainConstants.PREF_KEYS[1], volumeUpBinding).putString(MainConstants.PREF_KEYS[2], volumeDownBinding)
-                .putString(MainConstants.PREF_KEYS[3], swipeLeftBinding).putString(MainConstants.PREF_KEYS[4], swipeRightBinding)
-                .putString(MainConstants.PREF_KEYS[5], swipeUpBinding).putString(MainConstants.PREF_KEYS[6], swipeDownBinding)
-                .putString(MainConstants.PREF_KEYS[7], doubleTapTopBinding).putString(MainConstants.PREF_KEYS[8], doubleTapBottomBinding)
-                .putString(MainConstants.PREF_KEYS[9], doubleTapLeftBinding).putString(MainConstants.PREF_KEYS[10], doubleTapRightBinding)
-                .putFloat(MainConstants.PREF_KEYS[11], gestureDistanceThreshold).putFloat(MainConstants.PREF_KEYS[12], gestureVelocityThreshold)
-                .putBoolean(MainConstants.PREF_KEYS[13], fullscreenEnabled);
+        editor.putString(MainConstants.PREF_KEYS[1], volumeUpBinding)
+                .putString(MainConstants.PREF_KEYS[2], volumeDownBinding)
+                .putString(MainConstants.PREF_KEYS[3], swipeLeftBinding)
+                .putString(MainConstants.PREF_KEYS[4], swipeRightBinding)
+                .putString(MainConstants.PREF_KEYS[5], swipeUpBinding)
+                .putString(MainConstants.PREF_KEYS[6], swipeDownBinding)
+                .putString(MainConstants.PREF_KEYS[7], doubleTapTopBinding)
+                .putString(MainConstants.PREF_KEYS[8], doubleTapBottomBinding)
+                .putString(MainConstants.PREF_KEYS[9], doubleTapLeftBinding)
+                .putString(MainConstants.PREF_KEYS[10], doubleTapRightBinding)
+                .putFloat(MainConstants.PREF_KEYS[11], gestureDistanceThreshold)
+                .putFloat(MainConstants.PREF_KEYS[12], gestureVelocityThreshold)
+                .putBoolean(MainConstants.PREF_KEYS[13], hideStatusBar)
+                .putBoolean(MainConstants.PREF_KEYS[14], hideNavigationBar);
         if (newUrl != null && !newUrl.equals(currentUrl)) {
             currentUrl = newUrl;
             editor.putString(MainConstants.PREF_KEYS[0], currentUrl);
@@ -121,7 +140,8 @@ public class MainHelper {
                 .putExtra(ConfigConstants.EXTRA_GESTURE_DISTANCE, gestureDistanceThreshold)
                 .putExtra(ConfigConstants.EXTRA_GESTURE_VELOCITY, gestureVelocityThreshold)
                 .putExtra(ConfigConstants.EXTRA_URL, currentUrl)
-                .putExtra(ConfigConstants.EXTRA_FULLSCREEN, fullscreenEnabled);
+                .putExtra(ConfigConstants.EXTRA_HIDE_STATUS_BAR, hideStatusBar)
+                .putExtra(ConfigConstants.EXTRA_HIDE_NAVIGATION_BAR, hideNavigationBar);
         return intent;
     }
 
@@ -159,11 +179,8 @@ public class MainHelper {
     private void simulateKeyEvent(String binding) {
         int keyCode = getKeyCodeFromBinding(binding);
         if (keyCode != KeyEvent.KEYCODE_UNKNOWN) {
-            // Dispatch the key event
             webView.dispatchKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, keyCode));
             webView.dispatchKeyEvent(new KeyEvent(KeyEvent.ACTION_UP, keyCode));
-
-            // Defocus the webpage for all bindings
             webView.loadUrl("javascript:(function() { if (document.activeElement) document.activeElement.blur(); })()");
         }
     }

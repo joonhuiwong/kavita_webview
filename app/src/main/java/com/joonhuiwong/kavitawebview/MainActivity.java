@@ -177,7 +177,8 @@ public class MainActivity extends ComponentActivity {
         outState.putFloat(MainConstants.PREF_KEYS[11], helper.gestureDistanceThreshold);
         outState.putFloat(MainConstants.PREF_KEYS[12], helper.gestureVelocityThreshold);
         outState.putString(MainConstants.PREF_KEYS[0], helper.getCurrentUrl());
-        outState.putBoolean(MainConstants.PREF_KEYS[13], helper.fullscreenEnabled);
+        outState.putBoolean(MainConstants.PREF_KEYS[13], helper.hideStatusBar);   // Updated to hideStatusBar
+        outState.putBoolean(MainConstants.PREF_KEYS[14], helper.hideNavigationBar); // Added hideNavigationBar
         outState.putBoolean("shouldClearHistory", helper.shouldClearHistory);
         outState.putBoolean("isBackOptionsShown", isBackOptionsShown);
     }
@@ -185,11 +186,11 @@ public class MainActivity extends ComponentActivity {
     @Override
     protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
-        // WebView state restoration moved to onCreate or skipped since configChanges handles it
         helper.loadPreferences();
         helper.currentUrl = savedInstanceState.getString(MainConstants.PREF_KEYS[0]);
         helper.shouldClearHistory = savedInstanceState.getBoolean("shouldClearHistory");
-        helper.fullscreenEnabled = savedInstanceState.getBoolean(MainConstants.PREF_KEYS[13]);
+        helper.hideStatusBar = savedInstanceState.getBoolean(MainConstants.PREF_KEYS[13]);     // Updated to hideStatusBar
+        helper.hideNavigationBar = savedInstanceState.getBoolean(MainConstants.PREF_KEYS[14]); // Added hideNavigationBar
         isBackOptionsShown = savedInstanceState.getBoolean("isBackOptionsShown", false);
         helper.applyFullscreenMode(getWindow());
     }
