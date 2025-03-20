@@ -183,11 +183,19 @@ public class MainHelper {
             float absDiffX = Math.abs(diffX), absDiffY = Math.abs(diffY);
 
             if (absDiffX > absDiffY && absDiffX > gestureDistanceThreshold && Math.abs(velocityX) > gestureVelocityThreshold) {
-                simulateKeyEvent(diffX > 0 ? swipeRightBinding : swipeLeftBinding);
-                return true;
+                String binding = diffX > 0 ? swipeRightBinding : swipeLeftBinding;
+                int keyCode = getKeyCodeFromBinding(binding);
+                if (keyCode != KeyEvent.KEYCODE_UNKNOWN) {
+                    simulateKeyEvent(binding);
+                    return true;
+                }
             } else if (absDiffY > absDiffX && absDiffY > gestureDistanceThreshold && Math.abs(velocityY) > gestureVelocityThreshold) {
-                simulateKeyEvent(diffY > 0 ? swipeDownBinding : swipeUpBinding);
-                return true;
+                String binding = diffY > 0 ? swipeDownBinding : swipeUpBinding;
+                int keyCode = getKeyCodeFromBinding(binding);
+                if (keyCode != KeyEvent.KEYCODE_UNKNOWN) {
+                    simulateKeyEvent(binding);
+                    return true;
+                }
             }
             return false;
         }
