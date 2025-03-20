@@ -14,9 +14,13 @@
         android:usesCleartextTraffic="true"
         android:enableOnBackInvokedCallback="true"
         tools:targetApi="33">
-        <activity android:name=".ConfigActivity" />
+        <activity
+            android:name=".ConfigActivity"
+            android:configChanges="orientation|screenSize">
+        </activity>
         <activity
             android:name=".MainActivity"
+            android:configChanges="orientation|screenSize"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

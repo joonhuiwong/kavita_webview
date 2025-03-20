@@ -28,6 +28,8 @@ public class MainActivity extends ComponentActivity {
     private WebView webView;
     private MainHelper helper;
     private ActivityResultLauncher<Intent> configLauncher;
+    private AlertDialog configDialog, backOptionsDialog;
+    private boolean isBackOptionsShown = false;
 
     @SuppressLint("SetJavaScriptEnabled")
     @Override
@@ -43,10 +45,9 @@ public class MainActivity extends ComponentActivity {
                 new ActivityResultContracts.StartActivityForResult(),
                 result -> {
                     if (result.getResultCode() == RESULT_OK && result.getData() != null) {
-                        helper.handleConfigResult(result.getData()); // Updated call without configLauncher
+                        helper.handleConfigResult(result.getData());
                         helper.applyFullscreenMode(getWindow());
                     }
-                    if (helper.getCurrentUrl() == null || helper.getCurrentUrl().isEmpty()) showConfigPrompt();
                 });
 
         WebSettings webSettings = webView.getSettings();
@@ -60,10 +61,11 @@ public class MainActivity extends ComponentActivity {
         helper.setupWebView();
         helper.applyFullscreenMode(getWindow());
 
-        if (helper.getCurrentUrl() == null || helper.getCurrentUrl().isEmpty()) {
-            showConfigPrompt();
-        } else if (savedInstanceState == null) {
+        // Load URL only on first creation, not after rotation
+        if (helper.getCurrentUrl() != null && !helper.getCurrentUrl().isEmpty()) {
             webView.loadUrl(helper.getCurrentUrl());
+        } else {
+            showConfigPrompt();
         }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -79,16 +81,35 @@ public class MainActivity extends ComponentActivity {
     }
 
     private void showConfigPrompt() {
-        new AlertDialog.Builder(this)
-                .setTitle("Configuration Required")
-                .setMessage("Please enter your Kavita URL")
-                .setPositiveButton("Configure", (dialog, which) -> configLauncher.launch(helper.createConfigIntent()))
-                .setNegativeButton("Cancel", (dialog, which) -> finish())
-                .setCancelable(false)
-                .show();
+        if (configDialog != null && configDialog.isShowing()) {
+            return;
+        }
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Configuration Required")
+                .setPositiveButton("Configure", (dialog, which) -> {
+                    configLauncher.launch(helper.createConfigIntent());
+                    if (configDialog != null) {
+                        configDialog.dismiss();
+                    }
+                })
+                .setNegativeButton("Exit", (dialog, which) -> {
+                    if (configDialog != null) {
+                        configDialog.dismiss();
+                    }
+                    finish();
+                })
+                .setCancelable(false);
+
+        configDialog = builder.create();
+        configDialog.show();
     }
 
     private void showBackOptionsDialog() {
+        if (backOptionsDialog != null && backOptionsDialog.isShowing()) {
+            return;
+        }
+
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         View dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_back_options, null);
         builder.setView(dialogView);
@@ -97,24 +118,40 @@ public class MainActivity extends ComponentActivity {
         MaterialButton buttonExit = dialogView.findViewById(R.id.button_exit);
         MaterialButton buttonClose = dialogView.findViewById(R.id.button_close);
 
-        AlertDialog dialog = builder.create();
-        Objects.requireNonNull(dialog.getWindow()).setBackgroundDrawableResource(android.R.color.transparent);
+        backOptionsDialog = builder.create();
+        Objects.requireNonNull(backOptionsDialog.getWindow()).setBackgroundDrawableResource(android.R.color.transparent);
 
         buttonConfig.setOnClickListener(v -> {
+            if (backOptionsDialog != null) {
+                backOptionsDialog.dismiss();
+            }
+            isBackOptionsShown = false;
             configLauncher.launch(helper.createConfigIntent());
-            dialog.dismiss();
         });
         buttonExit.setOnClickListener(v -> {
-            dialog.dismiss();
+            if (backOptionsDialog != null) {
+                backOptionsDialog.dismiss();
+            }
+            isBackOptionsShown = false;
             finish();
         });
-        buttonClose.setOnClickListener(v -> dialog.dismiss());
-        dialog.show();
+        buttonClose.setOnClickListener(v -> {
+            if (backOptionsDialog != null) {
+                backOptionsDialog.dismiss();
+            }
+            isBackOptionsShown = false;
+        });
+
+        backOptionsDialog.show();
+        isBackOptionsShown = true;
     }
 
     private void handleBack() {
-        if (helper.canGoBack()) helper.goBack();
-        else showBackOptionsDialog();
+        if (helper.canGoBack()) {
+            helper.goBack();
+        } else {
+            showBackOptionsDialog();
+        }
     }
 
     @Override
@@ -142,24 +179,29 @@ public class MainActivity extends ComponentActivity {
         outState.putString(MainConstants.PREF_KEYS[0], helper.getCurrentUrl());
         outState.putBoolean(MainConstants.PREF_KEYS[13], helper.fullscreenEnabled);
         outState.putBoolean("shouldClearHistory", helper.shouldClearHistory);
+        outState.putBoolean("isBackOptionsShown", isBackOptionsShown);
     }
 
     @Override
     protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
-        webView.restoreState(savedInstanceState);
+        // WebView state restoration moved to onCreate or skipped since configChanges handles it
         helper.loadPreferences();
         helper.currentUrl = savedInstanceState.getString(MainConstants.PREF_KEYS[0]);
         helper.shouldClearHistory = savedInstanceState.getBoolean("shouldClearHistory");
         helper.fullscreenEnabled = savedInstanceState.getBoolean(MainConstants.PREF_KEYS[13]);
+        isBackOptionsShown = savedInstanceState.getBoolean("isBackOptionsShown", false);
         helper.applyFullscreenMode(getWindow());
-        if (helper.getCurrentUrl() == null || helper.getCurrentUrl().isEmpty()) showConfigPrompt();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         helper.applyFullscreenMode(getWindow());
-        if (helper.getCurrentUrl() == null || helper.getCurrentUrl().isEmpty()) showConfigPrompt();
+        if (helper.getCurrentUrl() == null || helper.getCurrentUrl().isEmpty()) {
+            showConfigPrompt();
+        } else if (isBackOptionsShown && (backOptionsDialog == null || !backOptionsDialog.isShowing())) {
+            showBackOptionsDialog();
+        }
     }
 }
