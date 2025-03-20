@@ -20,7 +20,7 @@
         android:id="@+id/warning_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="*To access, press the Back button on the frontpage."
+        android:text="*To access, double tap the center of the screen."
         android:textSize="12sp"
         android:textStyle="italic"
         android:textColor="#FF5722"
