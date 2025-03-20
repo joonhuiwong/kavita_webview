@@ -73,7 +73,7 @@ public class MainHelper {
         }
     }
 
-    public void handleConfigResult(Intent data) { // Removed unused configLauncher parameter
+    public void handleConfigResult(Intent data) {
         volumeUpBinding = data.getStringExtra(ConfigConstants.EXTRA_VOLUME_UP);
         volumeDownBinding = data.getStringExtra(ConfigConstants.EXTRA_VOLUME_DOWN);
         swipeLeftBinding = data.getStringExtra(ConfigConstants.EXTRA_SWIPE_LEFT);
@@ -159,8 +159,12 @@ public class MainHelper {
     private void simulateKeyEvent(String binding) {
         int keyCode = getKeyCodeFromBinding(binding);
         if (keyCode != KeyEvent.KEYCODE_UNKNOWN) {
+            // Dispatch the key event
             webView.dispatchKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, keyCode));
             webView.dispatchKeyEvent(new KeyEvent(KeyEvent.ACTION_UP, keyCode));
+
+            // Defocus the webpage for all bindings
+            webView.loadUrl("javascript:(function() { if (document.activeElement) document.activeElement.blur(); })()");
         }
     }
 
