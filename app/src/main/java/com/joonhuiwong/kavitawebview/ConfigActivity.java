@@ -19,7 +19,7 @@ public class ConfigActivity extends ComponentActivity {
     private EditText editTextUrl;
     private Spinner[] spinners;
     private Slider sliderGestureDistance, sliderGestureVelocity;
-    private SwitchMaterial switchHideStatusBar, switchHideNavigationBar;
+    private SwitchMaterial switchHideStatusBar, switchHideNavigationBar, switchDisableTextSelection;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,6 +48,7 @@ public class ConfigActivity extends ComponentActivity {
         sliderGestureVelocity = findViewById(R.id.slider_gesture_velocity);
         switchHideStatusBar = findViewById(R.id.switch_hide_status_bar);
         switchHideNavigationBar = findViewById(R.id.switch_hide_navigation_bar);
+        switchDisableTextSelection = findViewById(R.id.switch_disable_text_selection);
         MaterialButton buttonReset = findViewById(R.id.button_reset);
         MaterialButton buttonSave = findViewById(R.id.button_save);
         MaterialButton buttonCancel = findViewById(R.id.button_cancel);
@@ -76,6 +77,7 @@ public class ConfigActivity extends ComponentActivity {
             if (url != null) editTextUrl.setText(url);
             switchHideStatusBar.setChecked(intent.getBooleanExtra(ConfigConstants.EXTRA_HIDE_STATUS_BAR, ConfigConstants.DEFAULT_HIDE_STATUS_BAR));
             switchHideNavigationBar.setChecked(intent.getBooleanExtra(ConfigConstants.EXTRA_HIDE_NAVIGATION_BAR, ConfigConstants.DEFAULT_HIDE_NAVIGATION_BAR));
+            switchDisableTextSelection.setChecked(intent.getBooleanExtra(ConfigConstants.EXTRA_DISABLE_TEXT_SELECTION, ConfigConstants.DEFAULT_DISABLE_TEXT_SELECTION));
         } else {
             restoreState(savedInstanceState);
         }
@@ -84,8 +86,8 @@ public class ConfigActivity extends ComponentActivity {
         ConfigHelper.updateSaveButtonState(buttonSave);
 
         editTextUrl.addTextChangedListener(ConfigHelper.getUrlTextWatcher(editTextUrl, buttonSave));
-        ConfigHelper.setupResetButton(this, buttonReset, adapter, spinners, sliderGestureDistance, sliderGestureVelocity, switchHideStatusBar, switchHideNavigationBar);
-        ConfigHelper.setupSaveButton(this, buttonSave, spinners, sliderGestureDistance, sliderGestureVelocity, editTextUrl, switchHideStatusBar, switchHideNavigationBar);
+        ConfigHelper.setupResetButton(this, buttonReset, adapter, spinners, sliderGestureDistance, sliderGestureVelocity, switchHideStatusBar, switchHideNavigationBar, switchDisableTextSelection);
+        ConfigHelper.setupSaveButton(this, buttonSave, spinners, sliderGestureDistance, sliderGestureVelocity, editTextUrl, switchHideStatusBar, switchHideNavigationBar, switchDisableTextSelection);
         buttonCancel.setOnClickListener(v -> finish());
     }
 
@@ -118,6 +120,7 @@ public class ConfigActivity extends ComponentActivity {
         outState.putFloat("gestureVelocity", sliderGestureVelocity.getValue());
         outState.putBoolean("hideStatusBar", switchHideStatusBar.isChecked());
         outState.putBoolean("hideNavigationBar", switchHideNavigationBar.isChecked());
+        outState.putBoolean("disableTextSelection", switchDisableTextSelection.isChecked());
     }
 
     private void restoreState(Bundle savedInstanceState) {
@@ -129,5 +132,6 @@ public class ConfigActivity extends ComponentActivity {
         sliderGestureVelocity.setValue(savedInstanceState.getFloat("gestureVelocity", ConfigConstants.DEFAULT_GESTURE_VELOCITY));
         switchHideStatusBar.setChecked(savedInstanceState.getBoolean("hideStatusBar", ConfigConstants.DEFAULT_HIDE_STATUS_BAR));
         switchHideNavigationBar.setChecked(savedInstanceState.getBoolean("hideNavigationBar", ConfigConstants.DEFAULT_HIDE_NAVIGATION_BAR));
+        switchDisableTextSelection.setChecked(savedInstanceState.getBoolean("disableTextSelection", ConfigConstants.DEFAULT_DISABLE_TEXT_SELECTION));
     }
 }

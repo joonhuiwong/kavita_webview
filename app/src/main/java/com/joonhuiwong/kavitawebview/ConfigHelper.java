@@ -49,7 +49,8 @@ public class ConfigHelper {
     public static void setupResetButton(ConfigActivity activity, MaterialButton buttonReset,
                                         ArrayAdapter<CharSequence> adapter, Spinner[] spinners,
                                         Slider sliderGestureDistance, Slider sliderGestureVelocity,
-                                        SwitchMaterial switchHideStatusBar, SwitchMaterial switchHideNavigationBar) {
+                                        SwitchMaterial switchHideStatusBar, SwitchMaterial switchHideNavigationBar,
+                                        SwitchMaterial switchDisableTextSelection) {
         buttonReset.setOnClickListener(v -> new AlertDialog.Builder(activity)
                 .setMessage("Are you sure you want to Reset to Defaults?")
                 .setPositiveButton("Yes", (dialog, which) -> {
@@ -67,6 +68,7 @@ public class ConfigHelper {
                     sliderGestureVelocity.setValue(ConfigConstants.DEFAULT_GESTURE_VELOCITY);
                     switchHideStatusBar.setChecked(ConfigConstants.DEFAULT_HIDE_STATUS_BAR);
                     switchHideNavigationBar.setChecked(ConfigConstants.DEFAULT_HIDE_NAVIGATION_BAR);
+                    switchDisableTextSelection.setChecked(ConfigConstants.DEFAULT_DISABLE_TEXT_SELECTION);
                     Log.d(ConfigConstants.TAG, "Reset to defaults");
                 })
                 .setNegativeButton("No", null)
@@ -76,7 +78,8 @@ public class ConfigHelper {
     public static void setupSaveButton(ConfigActivity activity, MaterialButton buttonSave,
                                        Spinner[] spinners, Slider sliderGestureDistance,
                                        Slider sliderGestureVelocity, EditText editTextUrl,
-                                       SwitchMaterial switchHideStatusBar, SwitchMaterial switchHideNavigationBar) {
+                                       SwitchMaterial switchHideStatusBar, SwitchMaterial switchHideNavigationBar,
+                                       SwitchMaterial switchDisableTextSelection) {
         buttonSave.setOnClickListener(v -> {
             if (!buttonSave.isEnabled()) return;
             Intent result = new Intent();
@@ -95,6 +98,7 @@ public class ConfigHelper {
             result.putExtra(ConfigConstants.EXTRA_URL, editTextUrl.getText().toString().trim());
             result.putExtra(ConfigConstants.EXTRA_HIDE_STATUS_BAR, switchHideStatusBar.isChecked());
             result.putExtra(ConfigConstants.EXTRA_HIDE_NAVIGATION_BAR, switchHideNavigationBar.isChecked());
+            result.putExtra(ConfigConstants.EXTRA_DISABLE_TEXT_SELECTION, switchDisableTextSelection.isChecked());
             Log.d(ConfigConstants.TAG, "Saving config");
             activity.setResult(Activity.RESULT_OK, result);
             activity.finish();

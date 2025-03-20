@@ -21,7 +21,7 @@ public class MainWebViewClient extends WebViewClient {
 
     @Override
     public void onPageFinished(WebView view, String url) {
-        if (helper.getShouldClearHistory()) { // Updated to use getter
+        if (helper.getShouldClearHistory()) {
             view.clearHistory();
             helper.setShouldClearHistory(false);
         }

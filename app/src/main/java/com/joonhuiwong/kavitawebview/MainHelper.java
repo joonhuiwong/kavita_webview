@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.webkit.WebView;
+import android.webkit.WebViewClient;
 
 import androidx.annotation.NonNull;
 
@@ -26,7 +27,7 @@ public class MainHelper {
             doubleTapTopBinding = "None", doubleTapBottomBinding = "None", doubleTapLeftBinding = "None",
             doubleTapRightBinding = "None", currentUrl;
     public float gestureDistanceThreshold = 100f, gestureVelocityThreshold = 100f;
-    public boolean hideStatusBar = true, hideNavigationBar = false; // Split fullscreen into two settings
+    public boolean hideStatusBar = ConfigConstants.DEFAULT_HIDE_STATUS_BAR, hideNavigationBar = ConfigConstants.DEFAULT_HIDE_NAVIGATION_BAR, disableTextSelection = ConfigConstants.DEFAULT_DISABLE_TEXT_SELECTION;
     private final GestureDetector gestureDetector;
     public boolean shouldClearHistory = false;
 
@@ -51,19 +52,53 @@ public class MainHelper {
         doubleTapRightBinding = prefs.getString(MainConstants.PREF_KEYS[10], "None");
         gestureDistanceThreshold = prefs.getFloat(MainConstants.PREF_KEYS[11], 100f);
         gestureVelocityThreshold = prefs.getFloat(MainConstants.PREF_KEYS[12], 100f);
-        hideStatusBar = prefs.getBoolean(MainConstants.PREF_KEYS[13], true); // Reusing index 13 for status bar
-        hideNavigationBar = prefs.getBoolean(MainConstants.PREF_KEYS[14], true); // New index for nav bar
+        hideStatusBar = prefs.getBoolean(MainConstants.PREF_KEYS[13], ConfigConstants.DEFAULT_HIDE_STATUS_BAR);
+        hideNavigationBar = prefs.getBoolean(MainConstants.PREF_KEYS[14], ConfigConstants.DEFAULT_HIDE_NAVIGATION_BAR);
+        disableTextSelection = prefs.getBoolean(MainConstants.PREF_KEYS[15], ConfigConstants.DEFAULT_DISABLE_TEXT_SELECTION);
         currentUrl = prefs.getString(MainConstants.PREF_KEYS[0], null);
     }
 
     @SuppressLint("ClickableViewAccessibility")
     public void setupWebView() {
         webView.setOnTouchListener((v, event) -> gestureDetector.onTouchEvent(event));
+
+        webView.setWebViewClient(new WebViewClient() {
+            @Override
+            public void onPageFinished(WebView view, String url) {
+                super.onPageFinished(view, url);
+                updateTextSelection();
+            }
+        });
+    }
+
+    private void updateTextSelection() {
+        if (disableTextSelection) {
+            webView.loadUrl("javascript:(function() {" +
+                    "var style = document.getElementById('disableTextSelectionStyle');" +
+                    "if (!style) {" +
+                    "  style = document.createElement('style');" +
+                    "  style.id = 'disableTextSelectionStyle';" +
+                    "  style.type = 'text/css';" +
+                    "  style.innerHTML = '* { -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; }';" +
+                    "  document.head.appendChild(style);" +
+                    "}" +
+                    "})()");
+        } else {
+            webView.loadUrl("javascript:(function() {" +
+                    "var style = document.getElementById('disableTextSelectionStyle');" +
+                    "if (style) style.parentNode.removeChild(style);" +
+                    "var enableStyle = document.createElement('style');" +
+                    "enableStyle.id = 'enableTextSelectionStyle';" +
+                    "enableStyle.type = 'text/css';" +
+                    "enableStyle.innerHTML = '* { -webkit-user-select: auto; -moz-user-select: auto; -ms-user-select: auto; user-select: auto; }';" +
+                    "document.head.appendChild(enableStyle);" +
+                    "})()");
+        }
     }
 
     public void applyFullscreenMode(Window window) {
         View decorView = window.getDecorView();
-        int uiOptions = View.SYSTEM_UI_FLAG_LAYOUT_STABLE; // Base flag for stability
+        int uiOptions = View.SYSTEM_UI_FLAG_LAYOUT_STABLE;
 
         if (hideStatusBar) {
             uiOptions |= View.SYSTEM_UI_FLAG_FULLSCREEN | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN;
@@ -100,6 +135,7 @@ public class MainHelper {
         String newUrl = data.getStringExtra(ConfigConstants.EXTRA_URL);
         hideStatusBar = data.getBooleanExtra(ConfigConstants.EXTRA_HIDE_STATUS_BAR, ConfigConstants.DEFAULT_HIDE_STATUS_BAR);
         hideNavigationBar = data.getBooleanExtra(ConfigConstants.EXTRA_HIDE_NAVIGATION_BAR, ConfigConstants.DEFAULT_HIDE_NAVIGATION_BAR);
+        boolean newDisableTextSelection = data.getBooleanExtra(ConfigConstants.EXTRA_DISABLE_TEXT_SELECTION, ConfigConstants.DEFAULT_DISABLE_TEXT_SELECTION);
 
         SharedPreferences.Editor editor = prefs.edit();
         editor.putString(MainConstants.PREF_KEYS[1], volumeUpBinding)
@@ -115,7 +151,8 @@ public class MainHelper {
                 .putFloat(MainConstants.PREF_KEYS[11], gestureDistanceThreshold)
                 .putFloat(MainConstants.PREF_KEYS[12], gestureVelocityThreshold)
                 .putBoolean(MainConstants.PREF_KEYS[13], hideStatusBar)
-                .putBoolean(MainConstants.PREF_KEYS[14], hideNavigationBar);
+                .putBoolean(MainConstants.PREF_KEYS[14], hideNavigationBar)
+                .putBoolean(MainConstants.PREF_KEYS[15], disableTextSelection);
         if (newUrl != null && !newUrl.equals(currentUrl)) {
             currentUrl = newUrl;
             editor.putString(MainConstants.PREF_KEYS[0], currentUrl);
@@ -123,6 +160,11 @@ public class MainHelper {
             webView.loadUrl(currentUrl);
         }
         editor.apply();
+
+        if (newDisableTextSelection != disableTextSelection) {
+            disableTextSelection = newDisableTextSelection;
+            updateTextSelection();
+        }
     }
 
     public Intent createConfigIntent() {
@@ -141,7 +183,8 @@ public class MainHelper {
                 .putExtra(ConfigConstants.EXTRA_GESTURE_VELOCITY, gestureVelocityThreshold)
                 .putExtra(ConfigConstants.EXTRA_URL, currentUrl)
                 .putExtra(ConfigConstants.EXTRA_HIDE_STATUS_BAR, hideStatusBar)
-                .putExtra(ConfigConstants.EXTRA_HIDE_NAVIGATION_BAR, hideNavigationBar);
+                .putExtra(ConfigConstants.EXTRA_HIDE_NAVIGATION_BAR, hideNavigationBar)
+                .putExtra(ConfigConstants.EXTRA_DISABLE_TEXT_SELECTION, disableTextSelection);
         return intent;
     }
 
