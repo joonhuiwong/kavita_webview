@@ -1,5 +1,5 @@
 # Kavita Webview
-An application that just uses a Webview to wrap Kavita for reading, but with gesture and hotkey support.
+An application that just uses a Webview to wrap Kavita for reading, but with gesture and hotkey support as well as other quality of life.
 
 ## Why?
 Installing Key mapping tools to bind certain actions to other actions was tedious and most of the time they did not offer exactly what I needed. 
@@ -33,5 +33,9 @@ I've added the following actions that can be bindable so far:
 | Down Arrow |
 | Left Arrow |
 | Right Arrow |
+
+# Other Quality of Life
+- Hide Status/Navigation Bar
+- Disable Text Selection
 
 *These are Keyboard bindings, similar to using a keyboard on the device.
