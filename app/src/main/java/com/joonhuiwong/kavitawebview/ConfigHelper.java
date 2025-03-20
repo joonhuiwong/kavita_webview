@@ -21,8 +21,20 @@ public class ConfigHelper {
         spinner.setSelection(adapter.getPosition(value != null ? value : defaultValue));
     }
 
+    public static String normalizeUrl(String input) {
+        if (input == null || input.trim().isEmpty()) {
+            return "";
+        }
+        String trimmedInput = input.trim();
+        if (!trimmedInput.startsWith("http://") && !trimmedInput.startsWith("https://")) {
+            return "https://" + trimmedInput;
+        }
+        return trimmedInput;
+    }
+
     public static boolean isValidUrl(String url) {
-        return url != null && !url.isEmpty() && (url.startsWith("http://") || url.startsWith("https://"));
+        String normalizedUrl = normalizeUrl(url);
+        return !normalizedUrl.isEmpty() && (normalizedUrl.startsWith("http://") || normalizedUrl.startsWith("https://"));
     }
 
     public static void updateSaveButtonState(MaterialButton buttonSave) {
@@ -37,11 +49,12 @@ public class ConfigHelper {
             @Override
             public void afterTextChanged(Editable s) {
                 String input = s.toString().trim();
+                String normalizedInput = normalizeUrl(input);
                 buttonSave.setEnabled(isValidUrl(input));
                 updateSaveButtonState(buttonSave);
                 editTextUrl.setHint(input.isEmpty() ? "Enter URL *" : "Enter URL");
                 editTextUrl.setHintTextColor(input.isEmpty() ? 0xFFFF0000 : 0xFF757575);
-                Log.d(ConfigConstants.TAG, "URL input changed: " + input + ", Save enabled: " + buttonSave.isEnabled());
+                Log.d(ConfigConstants.TAG, "URL input changed: " + input + ", Normalized: " + normalizedInput + ", Save enabled: " + buttonSave.isEnabled());
             }
         };
     }
@@ -95,11 +108,13 @@ public class ConfigHelper {
             result.putExtra(ConfigConstants.EXTRA_DOUBLE_TAP_RIGHT, spinners[9].getSelectedItem().toString());
             result.putExtra(ConfigConstants.EXTRA_GESTURE_DISTANCE, sliderGestureDistance.getValue());
             result.putExtra(ConfigConstants.EXTRA_GESTURE_VELOCITY, sliderGestureVelocity.getValue());
-            result.putExtra(ConfigConstants.EXTRA_URL, editTextUrl.getText().toString().trim());
+            String inputUrl = editTextUrl.getText().toString().trim();
+            String normalizedUrl = normalizeUrl(inputUrl);
+            result.putExtra(ConfigConstants.EXTRA_URL, normalizedUrl); // Save the normalized URL
             result.putExtra(ConfigConstants.EXTRA_HIDE_STATUS_BAR, switchHideStatusBar.isChecked());
             result.putExtra(ConfigConstants.EXTRA_HIDE_NAVIGATION_BAR, switchHideNavigationBar.isChecked());
             result.putExtra(ConfigConstants.EXTRA_DISABLE_TEXT_SELECTION, switchDisableTextSelection.isChecked());
-            Log.d(ConfigConstants.TAG, "Saving config");
+            Log.d(ConfigConstants.TAG, "Saving config with URL: " + normalizedUrl);
             activity.setResult(Activity.RESULT_OK, result);
             activity.finish();
         });
