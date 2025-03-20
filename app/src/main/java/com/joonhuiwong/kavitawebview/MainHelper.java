@@ -11,7 +11,6 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.webkit.WebView;
-import android.webkit.WebViewClient;
 
 import androidx.annotation.NonNull;
 
@@ -27,14 +26,18 @@ public class MainHelper {
             doubleTapTopBinding = "None", doubleTapBottomBinding = "None", doubleTapLeftBinding = "None",
             doubleTapRightBinding = "None", currentUrl;
     public float gestureDistanceThreshold = 100f, gestureVelocityThreshold = 100f;
-    public boolean hideStatusBar = ConfigConstants.DEFAULT_HIDE_STATUS_BAR, hideNavigationBar = ConfigConstants.DEFAULT_HIDE_NAVIGATION_BAR, disableTextSelection = ConfigConstants.DEFAULT_DISABLE_TEXT_SELECTION;
+    public boolean hideStatusBar = ConfigConstants.DEFAULT_HIDE_STATUS_BAR,
+            hideNavigationBar = ConfigConstants.DEFAULT_HIDE_NAVIGATION_BAR,
+            disableTextSelection = ConfigConstants.DEFAULT_DISABLE_TEXT_SELECTION;
     private final GestureDetector gestureDetector;
     public boolean shouldClearHistory = false;
+    private final Runnable showBackOptionsDialog; // Callback to trigger dialog
 
-    public MainHelper(Context context, WebView webView, SharedPreferences prefs) {
+    public MainHelper(Context context, WebView webView, SharedPreferences prefs, Runnable showBackOptionsDialog) {
         this.context = context;
         this.webView = webView;
         this.prefs = prefs;
+        this.showBackOptionsDialog = showBackOptionsDialog;
         this.gestureDetector = new GestureDetector(context, new GestureListener());
         loadPreferences();
     }
@@ -61,39 +64,6 @@ public class MainHelper {
     @SuppressLint("ClickableViewAccessibility")
     public void setupWebView() {
         webView.setOnTouchListener((v, event) -> gestureDetector.onTouchEvent(event));
-
-        webView.setWebViewClient(new WebViewClient() {
-            @Override
-            public void onPageFinished(WebView view, String url) {
-                super.onPageFinished(view, url);
-                updateTextSelection();
-            }
-        });
-    }
-
-    private void updateTextSelection() {
-        if (disableTextSelection) {
-            webView.loadUrl("javascript:(function() {" +
-                    "var style = document.getElementById('disableTextSelectionStyle');" +
-                    "if (!style) {" +
-                    "  style = document.createElement('style');" +
-                    "  style.id = 'disableTextSelectionStyle';" +
-                    "  style.type = 'text/css';" +
-                    "  style.innerHTML = '* { -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; }';" +
-                    "  document.head.appendChild(style);" +
-                    "}" +
-                    "})()");
-        } else {
-            webView.loadUrl("javascript:(function() {" +
-                    "var style = document.getElementById('disableTextSelectionStyle');" +
-                    "if (style) style.parentNode.removeChild(style);" +
-                    "var enableStyle = document.createElement('style');" +
-                    "enableStyle.id = 'enableTextSelectionStyle';" +
-                    "enableStyle.type = 'text/css';" +
-                    "enableStyle.innerHTML = '* { -webkit-user-select: auto; -moz-user-select: auto; -ms-user-select: auto; user-select: auto; }';" +
-                    "document.head.appendChild(enableStyle);" +
-                    "})()");
-        }
     }
 
     public void applyFullscreenMode(Window window) {
@@ -163,7 +133,28 @@ public class MainHelper {
 
         if (newDisableTextSelection != disableTextSelection) {
             disableTextSelection = newDisableTextSelection;
-            updateTextSelection();
+            if (disableTextSelection) {
+                webView.loadUrl("javascript:(function() {" +
+                        "var style = document.getElementById('disableTextSelectionStyle');" +
+                        "if (!style) {" +
+                        "  style = document.createElement('style');" +
+                        "  style.id = 'disableTextSelectionStyle';" +
+                        "  style.type = 'text/css';" +
+                        "  style.innerHTML = '* { -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; }';" +
+                        "  document.head.appendChild(style);" +
+                        "}" +
+                        "})()");
+            } else {
+                webView.loadUrl("javascript:(function() {" +
+                        "var style = document.getElementById('disableTextSelectionStyle');" +
+                        "if (style) style.parentNode.removeChild(style);" +
+                        "var enableStyle = document.createElement('style');" +
+                        "enableStyle.id = 'enableTextSelectionStyle';" +
+                        "enableStyle.type = 'text/css';" +
+                        "enableStyle.innerHTML = '* { -webkit-user-select: auto; -moz-user-select: auto; -ms-user-select: auto; user-select: auto; }';" +
+                        "document.head.appendChild(enableStyle);" +
+                        "})()");
+            }
         }
     }
 
@@ -269,6 +260,14 @@ public class MainHelper {
             float x = e.getX(), y = e.getY();
             int viewWidth = webView.getWidth(), viewHeight = webView.getHeight();
 
+            // Center region: 33% to 66% of width and height
+            if (x >= viewWidth * 0.33f && x <= viewWidth * 0.66f &&
+                    y >= viewHeight * 0.33f && y <= viewHeight * 0.66f) {
+                showBackOptionsDialog.run();
+                return true;
+            }
+
+            // Existing configurable double-tap regions
             if (x >= viewWidth * 0.33f && x <= viewWidth * 0.66f) {
                 if (y <= viewHeight * 0.33f) simulateKeyEvent(doubleTapTopBinding);
                 else if (y >= viewHeight * 0.66f) simulateKeyEvent(doubleTapBottomBinding);

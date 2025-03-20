@@ -25,6 +25,29 @@ public class MainWebViewClient extends WebViewClient {
             view.clearHistory();
             helper.setShouldClearHistory(false);
         }
+        // Moved from MainHelper: Handle text selection
+        if (helper.disableTextSelection) {
+            view.loadUrl("javascript:(function() {" +
+                    "var style = document.getElementById('disableTextSelectionStyle');" +
+                    "if (!style) {" +
+                    "  style = document.createElement('style');" +
+                    "  style.id = 'disableTextSelectionStyle';" +
+                    "  style.type = 'text/css';" +
+                    "  style.innerHTML = '* { -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; }';" +
+                    "  document.head.appendChild(style);" +
+                    "}" +
+                    "})()");
+        } else {
+            view.loadUrl("javascript:(function() {" +
+                    "var style = document.getElementById('disableTextSelectionStyle');" +
+                    "if (style) style.parentNode.removeChild(style);" +
+                    "var enableStyle = document.createElement('style');" +
+                    "enableStyle.id = 'enableTextSelectionStyle';" +
+                    "enableStyle.type = 'text/css';" +
+                    "enableStyle.innerHTML = '* { -webkit-user-select: auto; -moz-user-select: auto; -ms-user-select: auto; user-select: auto; }';" +
+                    "document.head.appendChild(enableStyle);" +
+                    "})()");
+        }
     }
 
     @Override

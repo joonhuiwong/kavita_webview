@@ -39,7 +39,7 @@ public class MainActivity extends ComponentActivity {
 
         SharedPreferences prefs = getSharedPreferences(MainConstants.PREFS_NAME, MODE_PRIVATE);
         webView = findViewById(R.id.webView);
-        helper = new MainHelper(this, webView, prefs);
+        helper = new MainHelper(this, webView, prefs, this::showBackOptionsDialog);
 
         configLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
@@ -61,7 +61,6 @@ public class MainActivity extends ComponentActivity {
         helper.setupWebView();
         helper.applyFullscreenMode(getWindow());
 
-        // Load URL only on first creation, not after rotation
         if (helper.getCurrentUrl() != null && !helper.getCurrentUrl().isEmpty()) {
             webView.loadUrl(helper.getCurrentUrl());
         } else {
@@ -156,8 +155,7 @@ public class MainActivity extends ComponentActivity {
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if (helper.onKeyDown(keyCode)) return true;
-        return super.onKeyDown(keyCode, event);
+        return helper.onKeyDown(keyCode) || super.onKeyDown(keyCode, event);
     }
 
     @Override
