@@ -28,6 +28,7 @@ public class MainActivity extends ComponentActivity {
     private WebView webView;
     private MainHelper helper;
     private ActivityResultLauncher<Intent> configLauncher;
+    private AlertDialog configDialog;
 
     @SuppressLint("SetJavaScriptEnabled")
     @Override
@@ -43,10 +44,9 @@ public class MainActivity extends ComponentActivity {
                 new ActivityResultContracts.StartActivityForResult(),
                 result -> {
                     if (result.getResultCode() == RESULT_OK && result.getData() != null) {
-                        helper.handleConfigResult(result.getData()); // Updated call without configLauncher
+                        helper.handleConfigResult(result.getData());
                         helper.applyFullscreenMode(getWindow());
                     }
-                    if (helper.getCurrentUrl() == null || helper.getCurrentUrl().isEmpty()) showConfigPrompt();
                 });
 
         WebSettings webSettings = webView.getSettings();
@@ -79,13 +79,29 @@ public class MainActivity extends ComponentActivity {
     }
 
     private void showConfigPrompt() {
-        new AlertDialog.Builder(this)
-                .setTitle("Configuration Required")
+        if (configDialog != null && configDialog.isShowing()) {
+            return;
+        }
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Configuration Required")
                 .setMessage("Please enter your Kavita URL")
-                .setPositiveButton("Configure", (dialog, which) -> configLauncher.launch(helper.createConfigIntent()))
-                .setNegativeButton("Cancel", (dialog, which) -> finish())
-                .setCancelable(false)
-                .show();
+                .setPositiveButton("Configure", (dialog, which) -> {
+                    configLauncher.launch(helper.createConfigIntent());
+                    if (configDialog != null) {
+                        configDialog.dismiss();
+                    }
+                })
+                .setNegativeButton("Cancel", (dialog, which) -> {
+                    if (configDialog != null) {
+                        configDialog.dismiss();
+                    }
+                    finish();
+                })
+                .setCancelable(false);
+
+        configDialog = builder.create();
+        configDialog.show();
     }
 
     private void showBackOptionsDialog() {
@@ -153,13 +169,17 @@ public class MainActivity extends ComponentActivity {
         helper.shouldClearHistory = savedInstanceState.getBoolean("shouldClearHistory");
         helper.fullscreenEnabled = savedInstanceState.getBoolean(MainConstants.PREF_KEYS[13]);
         helper.applyFullscreenMode(getWindow());
-        if (helper.getCurrentUrl() == null || helper.getCurrentUrl().isEmpty()) showConfigPrompt();
+        if (helper.getCurrentUrl() == null || helper.getCurrentUrl().isEmpty()) {
+            showConfigPrompt();
+        }
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         helper.applyFullscreenMode(getWindow());
-        if (helper.getCurrentUrl() == null || helper.getCurrentUrl().isEmpty()) showConfigPrompt();
+        if (helper.getCurrentUrl() == null || helper.getCurrentUrl().isEmpty()) {
+            showConfigPrompt();
+        }
     }
 }
